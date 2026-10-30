@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Admin · Sort Your Files</title>
+<style>
+:root{color-scheme:dark light;--tx:#f4f4f6;--tx2:rgba(240,240,246,.66);--g:rgba(255,255,255,.08);--st:rgba(255,255,255,.2);--bar:#e9e9ee;--bg0:#08080a;--bg1:#151518}
+@media(prefers-color-scheme:light){:root{--tx:#17171a;--tx2:rgba(23,23,26,.62);--g:rgba(255,255,255,.7);--st:rgba(0,0,0,.1);--bar:#2b2b30;--bg0:#ecebe8;--bg1:#f7f6f3}}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;color:var(--tx);background:linear-gradient(160deg,var(--bg0),var(--bg1))}
+.w{max-width:1000px;margin:0 auto;padding:28px 18px}h1{font-size:28px;letter-spacing:-.7px;margin:0 0 4px}.s{color:var(--tx2);margin:0 0 22px}
+.card{background:var(--g);border:1px solid var(--st);border-radius:22px;padding:18px;backdrop-filter:blur(30px)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.n{font-size:38px;font-weight:760;letter-spacing:-1.4px;font-variant-numeric:tabular-nums;line-height:1}.l{color:var(--tx2);margin-top:6px;font-size:13.5px}
+input,button{font:inherit;color:var(--tx);background:var(--g);border:1px solid var(--st);border-radius:12px;padding:10px 14px}button{cursor:pointer;font-weight:620}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--st)}th:first-child,td:first-child{text-align:left}th{color:var(--tx2);font-weight:600}
+.tabs{display:flex;gap:8px;margin:0 0 10px}.tabs button.on{background:var(--tx);color:var(--bg0)}
+svg{width:100%;height:190px;display:block}#err{color:#ff6b61;margin-top:10px}
+</style></head><body><div class="w">
+<h1>Usage</h1><p class="s">Anonymous counts only. No file names, no content, no personal details.</p>
+<div id="login" class="card"><form id="f" style="display:flex;gap:8px;flex-wrap:wrap"><input type="password" id="k" placeholder="Admin key" autocomplete="current-password"><button>Open</button></form><div id="err"></div></div>
+<div id="app" hidden>
+<div class="grid" id="cards"></div>
+<div class="card"><div class="tabs" id="tabs"></div><svg id="ch" viewBox="0 0 600 190" preserveAspectRatio="none"></svg></div>
+<div class="card" style="margin-top:14px"><table><thead><tr><th>Day</th><th>Visitors</th><th>Visits</th><th>Scans</th><th>Files sorted</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div></div>
+<script>
+const $=s=>document.querySelector(s);let D=null,M='visits';
+const FIELDS={visits:'Visits',users:'Visitors',scans:'Scans',sorted:'Files sorted'};
+async function load(k){const r=await fetch('/api/stats',{headers:{Authorization:'Bearer '+k},cache:'no-store'});if(!r.ok)throw new Error('Wrong key');return r.json()}
+function show(j){D=j;$('#login').hidden=true;$('#app').hidden=false;const t=j.days[j.days.length-1],sum=f=>j.days.reduce((a,x)=>a+x[f],0);
+ $('#cards').innerHTML=[[j.total_users,'people so far'],[t.users,'visitors today'],[sum('visits'),'visits (30 days)'],[sum('scans'),'scans (30 days)'],[sum('sorted'),'files sorted (30 days)']].map(([n,l])=>`<div class="card"><div class="n">${Number(n).toLocaleString()}</div><div class="l">${l}</div></div>`).join('');
+ $('#tabs').innerHTML=Object.entries(FIELDS).map(([k,v])=>`<button data-m="${k}" class="${k===M?'on':''}">${v}</button>`).join('');
+ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{M=b.dataset.m;show(D)});
+ const mx=Math.max(1,...j.days.map(d=>d[M])),w=600/30;
+ $('#ch').innerHTML=j.days.map((d,i)=>{const h=Math.round(d[M]/mx*160);return`<g><title>${d.d}: ${d[M]}</title><rect x="${i*w+3}" y="${175-h}" width="${w-6}" height="${Math.max(h,1)}" rx="3" fill="var(--bar)" opacity="${d[M]?1:.25}"/></g>`}).join('');
+ $('#rows').innerHTML=[...j.days].reverse().map(d=>`<tr><td>${d.d}</td><td>${d.users}</td><td>${d.visits}</td><td>${d.scans}</td><td>${d.sorted}</td></tr>`).join('')}
+$('#f').onsubmit=async e=>{e.preventDefault();try{const k=$('#k').value;const j=await load(k);try{sessionStorage.setItem('ak',k)}catch(_){}show(j)}catch(x){$('#err').textContent=x.message}};
+try{const k=sessionStorage.getItem('ak');if(k)load(k).then(show).catch(()=>{})}catch(_){}
+</script></body></html>
