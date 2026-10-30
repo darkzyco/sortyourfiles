@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sort Your Files — private AI file sorter</title><meta name="description" content="Pick a folder and a small AI on your own computer groups your photos and videos. Nothing is uploaded.">
+<style>
+:root{color-scheme:dark light;--tx:#f4f4f6;--tx2:rgba(240,240,246,.66);--tx3:rgba(240,240,246,.42);--glass:rgba(40,40,46,.5);--g2:rgba(255,255,255,.07);--g3:rgba(255,255,255,.13);--st:rgba(255,255,255,.2);--hi:rgba(255,255,255,.3);--ok:#30d158;--bad:#ff453a;--bg0:#08080a;--bg1:#151518;--spring:cubic-bezier(.34,1.45,.5,1)}
+@media(prefers-color-scheme:light){:root{--tx:#17171a;--tx2:rgba(23,23,26,.66);--tx3:rgba(23,23,26,.42);--glass:rgba(255,255,255,.62);--g2:rgba(255,255,255,.55);--g3:rgba(255,255,255,.8);--st:rgba(255,255,255,.9);--hi:#fff;--bg0:#ecebe8;--bg1:#f7f6f3}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;color:var(--tx);min-height:100vh;background:linear-gradient(160deg,var(--bg0),var(--bg1))}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden}.bg i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45}.bg i:nth-child(1){width:560px;height:560px;left:-120px;top:-120px;background:#6a625a;animation:a 28s ease-in-out infinite alternate}.bg i:nth-child(2){width:520px;height:520px;right:-100px;bottom:-140px;background:#7a5f3c;opacity:.35;animation:a 34s ease-in-out infinite alternate-reverse}@keyframes a{to{transform:translate(120px,90px) scale(1.15)}}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 18px 90px}
+.glass{background:var(--glass);backdrop-filter:blur(36px) saturate(180%);-webkit-backdrop-filter:blur(36px) saturate(180%);border:1px solid var(--st);box-shadow:inset 0 1px 0 var(--hi),0 28px 60px -30px rgba(0,0,0,.6);border-radius:26px}
+h1{font-size:30px;letter-spacing:-.8px;margin:0}.sub{color:var(--tx2);margin:4px 0 20px}
+.btn{all:unset;cursor:pointer;display:inline-flex;gap:8px;align-items:center;padding:10px 18px;border-radius:99px;font-weight:620;background:var(--g3);border:1px solid var(--st);box-shadow:inset 0 1px 0 var(--hi);transition:transform .35s var(--spring),opacity .25s}.btn:hover{transform:translateY(-1px) scale(1.03)}.btn:active{transform:scale(.95)}.btn[disabled]{opacity:.4;pointer-events:none}
+.btn.pri{background:linear-gradient(180deg,#fff,#e2e2e6);color:#111;border-color:#fff}
+input[type=text],select{font:inherit;color:var(--tx);background:var(--g2);border:1px solid var(--st);border-radius:12px;padding:8px 11px;outline:none}select option{color:#111}
+.step{padding:20px;margin-bottom:16px;animation:in .6s var(--spring) both}@keyframes in{from{opacity:0;transform:translateY(16px)}}
+.step h2{margin:0 0 4px;font-size:18px;letter-spacing:-.3px}.step p{margin:0 0 14px;color:var(--tx2)}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.cat{display:grid;grid-template-columns:1fr auto;gap:6px;padding:10px;border-radius:16px;background:var(--g2);border:1px solid var(--st)}
+.cat input{width:100%}.cat .d{grid-column:1/3}.x{all:unset;cursor:pointer;opacity:.5;padding:4px 8px}.x:hover{opacity:1}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar{height:8px;border-radius:9px;background:var(--g2);overflow:hidden;flex:1;min-width:160px}.bar b{display:block;height:100%;width:0;background:var(--tx);transition:width .3s}
+.stat{color:var(--tx2);font-size:13px}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.grp{padding:14px;border-radius:22px;animation:in .6s var(--spring) both}
+.grp h3{margin:0 0 10px;display:flex;justify-content:space-between;font-size:16px}.grp h3 span{color:var(--tx3);font-weight:500}
+.th{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.th div{aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--g2);position:relative;cursor:pointer;border:1px solid var(--st)}.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th div.v::after{content:"\25B6";position:absolute;right:4px;bottom:3px;font-size:9px;color:#fff;text-shadow:0 1px 3px #000}
+.th div.off{opacity:.25}
+.note{padding:12px 16px;border-radius:16px;background:var(--g2);border:1px solid var(--st);color:var(--tx2);margin-bottom:14px}
+.sticky{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);padding:12px 14px 12px 20px;display:flex;gap:14px;align-items:center;border-radius:99px;z-index:9}
+#pop{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.55);z-index:20}#pop.on{display:grid}#pop .box{padding:16px;max-width:92vw}#pop img{max-width:80vw;max-height:70vh;border-radius:14px;display:block}#pop select{margin-top:10px}
+.hide{display:none!important}
+</style></head><body>
+<div class="bg"><i></i><i></i></div>
+<div class="wrap">
+<h1>Sort your files</h1>
+<p class="sub">Pick a folder. A small AI model on this computer looks at each photo and video and groups them. You decide the groups, and nothing moves until you say so.</p>
+
+<section class="glass step" id="s1"><h2>1 · Your groups</h2><p>Name each folder and describe what belongs in it in a few words. The AI matches each file to the closest description. Add your own, for example a client.</p>
+<div class="cats" id="cats"></div>
+<div class="row" style="margin-top:12px"><button class="btn" id="addCat">+ Add group</button><label class="stat"><input type="checkbox" id="sub"> Include sub-folders (system and app folders are always skipped)</label></div></section>
+
+<section class="glass step" id="s2"><h2>2 · Choose a folder</h2><p id="unsure">Files the AI isn't sure about go to "Needs a look". Chrome is required.</p>
+<div class="row"><button class="btn pri" id="pick">Choose folder &amp; scan</button><button class="btn" id="undo">Undo last move</button>
+<label class="stat">Sureness needed <select id="thr"><option value="0.28">Relaxed</option><option value="0.4" selected>Balanced</option><option value="0.55">Strict</option></select></label></div>
+<div class="row" style="margin-top:12px"><div class="bar"><b id="pb"></b></div><span class="stat" id="ps">Ready</span></div></section>
+
+<div class="note hide" id="done"></div>
+<div class="groups" id="groups"></div>
+<p class="stat" style="text-align:center;margin-top:30px">Your files never leave your computer. We only count anonymous visits.</p></div>
+<div class="sticky glass hide" id="mv"><span id="mvt"></span><button class="btn pri" id="go">Move files into folders</button><button class="btn" id="reset">Start over</button></div>
+<div id="pop"><div class="box glass"><img id="pimg"><div class="row"><select id="psel"></select><button class="btn" id="pskip">Leave this file</button><button class="btn" id="pclose">Close</button></div></div></div>
+
+<script>
+(function(){try{if(navigator.doNotTrack==='1')return;let id=localStorage.getItem('sf_id');if(!id){id=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>(b%36).toString(36)).join('')+Date.now().toString(36);localStorage.setItem('sf_id',id)}
+window.__hit=(ev,n)=>{try{fetch('/api/hit',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({id,ev,n})}).catch(()=>{})}catch(_){}};window.__hit('visit')}catch(_){window.__hit=()=>{}}})();
+</script>
+<script type="module">
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DEF=[["Selfies & people","a close-up photo of a person or selfie"],["Food & drinks","a plate of food or a drink"],["Travel & places","a street, building or travel place"],["Nature","trees, sky, plants or landscape"],["Vehicles & cars","a car, scooter or vehicle"],["Events & crowds","a crowd of people at an event or stage"],["Shops & products","a shop shelf or product"],["Documents & screenshots","a screenshot, document or text on a screen"],["Work & desk","a desk, laptop or office work"]];
+let cats=JSON.parse(localStorage.getItem('ls_cats')||'null')||DEF.map(c=>({n:c[0],d:c[1]}));
+const SKIP=/^(\.|Library$|node_modules$|Sorted$)|\.(app|framework|bundle|photoslibrary|xcodeproj|lproj)$/i;
+const IMG=/\.(jpe?g|png|webp|gif|heic|bmp)$/i,VID=/\.(mov|mp4|m4v|webm)$/i;
+let root=null,items=[],cls=null,busy=false;
+function drawCats(){$('#cats').innerHTML=cats.map((c,i)=>`<div class="cat"><input type="text" data-i="${i}" data-k="n" value="${esc(c.n)}" placeholder="Folder name"><button class="x" data-x="${i}">✕</button><input class="d" type="text" data-i="${i}" data-k="d" value="${esc(c.d)}" placeholder="Describe what's in it"></div>`).join('');
+ document.querySelectorAll('#cats input').forEach(e=>e.oninput=()=>{cats[e.dataset.i][e.dataset.k]=e.value;localStorage.setItem('ls_cats',JSON.stringify(cats))});
+ document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{cats.splice(b.dataset.x,1);localStorage.setItem('ls_cats',JSON.stringify(cats));drawCats()})}
+$('#addCat').onclick=()=>{cats.push({n:'',d:''});drawCats()};drawCats();
+const prog=(p,t)=>{$('#pb').style.width=(p*100)+'%';$('#ps').textContent=t};
+async function model(){if(cls)return cls;prog(0,'Loading the AI model (first time ~150 MB)…');
+ const T=await import('/vendor/transformers.min.js');T.env.backends.onnx.wasm.wasmPaths='/vendor/';T.env.allowLocalModels=false;
+ cls=await T.pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32',{progress_callback:p=>{if(p.status==='progress')prog((p.progress||0)/100,'Downloading the AI model… '+Math.round(p.progress||0)+'%')}});return cls}
+async function* walk(dir,deep,rel=''){for await(const [name,h] of dir.entries()){if(SKIP.test(name))continue;
+ if(h.kind==='file'){if(IMG.test(name)||VID.test(name))yield{h,dir,name,rel,video:VID.test(name)}}else if(deep)yield*walk(h,deep,rel+name+'/')}}
+async function thumb(it){const f=await it.h.getFile();
+ if(!it.video){try{const b=await createImageBitmap(f,{resizeWidth:256});const c=document.createElement('canvas');c.width=b.width;c.height=b.height;c.getContext('2d').drawImage(b,0,0);return await new Promise(r=>c.toBlob(r,'image/jpeg',.8))}catch(e){return null}}
+ return await new Promise(res=>{const v=document.createElement('video');v.muted=true;v.preload='auto';v.src=URL.createObjectURL(f);const fin=b=>{URL.revokeObjectURL(v.src);res(b)};
+  v.onloadedmetadata=()=>{v.currentTime=Math.min(1,(v.duration||2)/2)};v.onseeked=()=>{const c=document.createElement('canvas'),s=256/(v.videoWidth||256);c.width=256;c.height=Math.round((v.videoHeight||256)*s);c.getContext('2d').drawImage(v,0,0,c.width,c.height);c.toBlob(fin,'image/jpeg',.8)};v.onerror=()=>fin(null);setTimeout(()=>fin(null),15000)})}
+$('#pick').onclick=async()=>{if(busy)return;const valid=cats.filter(c=>c.n.trim()&&c.d.trim());if(!valid.length)return alert('Add at least one group with a name and a description.');
+ if(!window.showDirectoryPicker)return alert('Please open this page in Chrome.');
+ try{root=await showDirectoryPicker({mode:'readwrite'})}catch(e){return}
+ window.__hit&&window.__hit('scan');busy=true;$('#pick').disabled=true;$('#groups').innerHTML='';$('#done').classList.add('hide');items=[];
+ try{const c=await model();const labels=valid.map(v=>v.d.trim()),thr=+$('#thr').value;prog(0,'Counting files…');
+  const list=[];for await(const it of walk(root,$('#sub').checked))list.push(it);
+  if(!list.length){prog(0,'No photos or videos found at the top level of that folder.');busy=false;$('#pick').disabled=false;return}
+  let n=0;for(const it of list){n++;prog(n/list.length,`Looking at ${n} of ${list.length}…`);
+   try{const b=await thumb(it);if(!b){it.group='Needs a look';items.push(it);continue}it.url=URL.createObjectURL(b);
+    const out=await c(it.url,labels,{hypothesis_template:'a photo of {}.'});const top=out[0],ix=labels.indexOf(top.label);it.group=top.score>=thr?valid[ix].n.trim():'Needs a look'}catch(e){it.group='Needs a look'}
+   items.push(it);if(n%6===0)render()}
+  prog(1,`Looked at ${list.length} files. Check the groups below.`);render()}catch(e){prog(0,'Something went wrong: '+e.message)}
+ busy=false;$('#pick').disabled=false};
+function names(){return[...cats.filter(c=>c.n.trim()).map(c=>c.n.trim()),'Needs a look']}
+function render(){const g={};items.forEach((it,i)=>{if(it.skip)return;(g[it.group]=g[it.group]||[]).push(i)});
+ $('#groups').innerHTML=Object.entries(g).sort((a,b)=>b[1].length-a[1].length).map(([n,ix])=>`<div class="grp glass"><h3>${esc(n)}<span>${ix.length}</span></h3><div class="th">${ix.slice(0,60).map(i=>`<div data-i="${i}" class="${items[i].video?'v':''}" title="${esc(items[i].name)}">${items[i].url?`<img src="${items[i].url}">`:''}</div>`).join('')}</div>${ix.length>60?`<p class="stat">+${ix.length-60} more</p>`:''}</div>`).join('');
+ document.querySelectorAll('.th div').forEach(d=>d.onclick=()=>openPop(+d.dataset.i));
+ const k=items.filter(i=>!i.skip&&i.group!=='Needs a look').length;$('#mv').classList.toggle('hide',!k);$('#mvt').textContent=`${k} files ready. Nothing has moved yet.`}
+let cur=0;function openPop(i){cur=i;const it=items[i];$('#pimg').src=it.url||'';$('#psel').innerHTML=names().map(n=>`<option ${n===it.group?'selected':''}>${esc(n)}</option>`).join('');$('#pop').classList.add('on')}
+$('#psel').onchange=()=>{items[cur].group=$('#psel').value;render()};$('#pskip').onclick=()=>{items[cur].skip=true;$('#pop').classList.remove('on');render()};$('#pclose').onclick=()=>$('#pop').classList.remove('on');$('#pop').onclick=e=>{if(e.target.id==='pop')$('#pop').classList.remove('on')};
+$('#reset').onclick=()=>{items=[];render();$('#groups').innerHTML='';prog(0,'Ready')};
+const safe=g=>g.replace(/[\/\\:*?"<>|]/g,'-').replace(/^\.+/,'_').trim()||'Group';
+async function sub(d,path){let h=d;for(const p of path.split('/').filter(Boolean))h=await h.getDirectoryHandle(p,{create:true});return h}
+async function mvFile(it,toDir,name){try{await it.h.move(toDir,name);return true}catch(e){}
+ const f=await it.h.getFile(),nh=await toDir.getFileHandle(name,{create:true}),w=await nh.createWritable();await w.write(f);await w.close();await it.dir.removeEntry(it.name);return true}
+$('#go').onclick=async()=>{const todo=items.filter(i=>!i.skip&&i.group!=='Needs a look');if(!todo.length)return;busy=true;$('#go').disabled=true;
+ const log=[];let done=0,fail=0;const sorted=await root.getDirectoryHandle('Sorted',{create:true});
+ for(const it of todo){try{const dir=await sub(sorted,safe(it.group));let name=it.name;try{await dir.getFileHandle(name);name=Date.now()+'_'+name}catch(e){}
+   await mvFile(it,dir,name);log.push({from:it.rel,name:it.name,group:safe(it.group),to:name});done++}catch(e){fail++}
+  $('#ps').textContent=`Moving ${done+fail} of ${todo.length}…`}
+ const lh=await sorted.getFileHandle('.file-sorter-log.json',{create:true}),w=await lh.createWritable();await w.write(JSON.stringify({when:new Date().toISOString(),log}));await w.close();
+ window.__hit&&window.__hit('sorted',done);$('#done').textContent=`Moved ${done} files into "Sorted" inside the folder you chose.`+(fail?` ${fail} could not be moved.`:'')+' You can undo it.';$('#done').classList.remove('hide');$('#mv').classList.add('hide');$('#groups').innerHTML='';items=[];busy=false;$('#go').disabled=false};
+$('#undo').onclick=async()=>{try{const r=await showDirectoryPicker({mode:'readwrite'}),s=await r.getDirectoryHandle('Sorted'),lf=await(await s.getFileHandle('.file-sorter-log.json')).getFile(),{log}=JSON.parse(await lf.text());let n=0;
+  for(const e of log){try{const gd=await s.getDirectoryHandle(e.group),fh=await gd.getFileHandle(e.to),back=await sub(r,e.from);const f=await fh.getFile();let nm=e.name;try{await back.getFileHandle(nm);nm='restored_'+Date.now()+'_'+nm}catch(_){ }const nh=await back.getFileHandle(nm,{create:true}),w=await nh.createWritable();await w.write(f);await w.close();await gd.removeEntry(e.to);n++}catch(x){}}
+  await s.removeEntry('.file-sorter-log.json');$('#done').textContent=`Put ${n} files back where they were.`;$('#done').classList.remove('hide')}catch(e){alert('No earlier move found in that folder.')}};
+</script></body></html>
