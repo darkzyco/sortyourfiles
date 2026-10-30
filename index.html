@@ -31,20 +31,36 @@ input[type=text],select{font:inherit;color:var(--tx);background:var(--g2);border
 .sticky{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);padding:12px 14px 12px 20px;display:flex;gap:14px;align-items:center;border-radius:99px;z-index:9}
 #pop{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.55);z-index:20}#pop.on{display:grid}#pop .box{padding:16px;max-width:92vw}#pop img{max-width:80vw;max-height:70vh;border-radius:14px;display:block}#pop select{margin-top:10px}
 .hide{display:none!important}
+.hero{padding:34px 0 22px;text-align:center}.hero h1{font-size:clamp(30px,5vw,50px);line-height:1.08;letter-spacing:-1.6px;max-width:760px;margin:12px auto}.hero .sub{max-width:640px;margin:0 auto;font-size:17px}.pill{display:inline-block;padding:5px 14px;border-radius:99px;border:1px solid var(--st);background:var(--g2);color:var(--tx2);font-size:13px}
+details.step>summary{cursor:pointer;list-style:none;padding:2px 0}details.step>summary::-webkit-details-marker{display:none}details.step>summary::after{content:"+";float:right;color:var(--tx2)}details.step[open]>summary::after{content:"–"}
+.how{margin:34px 0 0}.how h2{font-size:22px;letter-spacing:-.4px;margin:0 0 12px}.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.three>div{padding:18px}.three p{margin:6px 0 0;color:var(--tx2)}
+.faq{padding:14px 18px;margin-bottom:10px;cursor:pointer}.faq p{margin:8px 0 0;color:var(--tx2);cursor:auto}.faq summary{font-weight:600}
 </style></head><body>
 <div class="bg"><i></i><i></i></div>
 <div class="wrap">
-<h1>Sort your files</h1>
-<p class="sub">Pick a folder. A small AI model on this computer looks at each photo and video and groups them. You decide the groups, and nothing moves until you say so.</p>
-
-<section class="glass step" id="s1"><h2>1 · Your groups</h2><p>Name each folder and describe what belongs in it in a few words. The AI matches each file to the closest description. Add your own, for example a client.</p>
-<div class="cats" id="cats"></div>
-<div class="row" style="margin-top:12px"><button class="btn" id="addCat">+ Add group</button><label class="stat"><input type="checkbox" id="sub"> Include sub-folders (system and app folders are always skipped)</label></div></section>
-
-<section class="glass step" id="s2"><h2>2 · Choose a folder</h2><p id="unsure">Files the AI isn't sure about go to "Needs a look". Chrome is required.</p>
+<header class="hero"><div class="pill">Private · Runs on your computer · Free</div>
+<h1>Sort your photos and videos by what is in them.</h1>
+<p class="sub">Pick a folder. A small AI on your own computer looks at each photo and video and sorts them into folders you choose. Nothing is uploaded, and nothing moves until you say so.</p></header>
+<section class="glass step" id="s2"><h2>Choose a folder to start</h2><p id="unsure">Works in Chrome on a computer. Files the AI isn't sure about go to "Needs a look".</p>
 <div class="row"><button class="btn pri" id="pick">Choose folder &amp; scan</button><button class="btn" id="undo">Undo last move</button>
 <label class="stat">Sureness needed <select id="thr"><option value="0.28">Relaxed</option><option value="0.4" selected>Balanced</option><option value="0.55">Strict</option></select></label></div>
 <div class="row" style="margin-top:12px"><div class="bar"><b id="pb"></b></div><span class="stat" id="ps">Ready</span></div></section>
+<details class="glass step" id="s1"><summary><b>Customize your groups</b> <span class="stat">· rename them or add your own, such as a client</span></summary><div style="height:10px"></div><p>Name each folder and describe what belongs in it in a few words. The AI matches each file to the closest description. Add your own, for example a client.</p>
+<div class="cats" id="cats"></div>
+<div class="row" style="margin-top:12px"><button class="btn" id="addCat">+ Add group</button><label class="stat"><input type="checkbox" id="sub"> Include sub-folders (system and app folders are always skipped)</label></div></details>
+<section class="how"><h2>How it works</h2><div class="three">
+<div class="glass"><b>1 · Choose a folder</b><p>Pick any folder on your computer, such as Downloads or a camera roll.</p></div>
+<div class="glass"><b>2 · See the groups</b><p>The AI looks at every photo and video and shows them grouped. Change any file you disagree with.</p></div>
+<div class="glass"><b>3 · Move, or undo</b><p>One click moves files into a Sorted folder. Not happy? Undo puts everything back.</p></div></div></section>
+<section class="how"><h2>Questions</h2>
+<details class="glass faq"><summary>Are my files uploaded?</summary><p>No. The AI runs inside your browser on your own computer. Only a one-time download of the AI model, about 150 MB, happens the first time.</p></details>
+<details class="glass faq"><summary>Which browser do I need?</summary><p>Chrome on a computer (Mac, Windows or Linux). It needs Chrome's folder access, which phones and Safari don't have yet.</p></details>
+<details class="glass faq"><summary>Can it delete my files?</summary><p>No. It only moves files into a Sorted folder inside the folder you chose, and the Undo button puts them back.</p></details>
+<details class="glass faq"><summary>Does it work on videos?</summary><p>Yes. It looks at one frame of each video to decide where it belongs.</p></details></section>
+
+
+
+
 
 <div class="note hide" id="done"></div>
 <div class="groups" id="groups"></div>
