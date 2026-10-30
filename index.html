@@ -35,13 +35,13 @@ input[type=text],select{font:inherit;color:var(--tx);background:var(--g2);border
 details.step>summary{cursor:pointer;list-style:none;padding:2px 0}details.step>summary::-webkit-details-marker{display:none}details.step>summary::after{content:"+";float:right;color:var(--tx2)}details.step[open]>summary::after{content:"–"}
 .how{margin:34px 0 0}.how h2{font-size:22px;letter-spacing:-.4px;margin:0 0 12px}.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.three>div{padding:18px}.three p{margin:6px 0 0;color:var(--tx2)}
 .faq{padding:14px 18px;margin-bottom:10px;cursor:pointer}.faq p{margin:8px 0 0;color:var(--tx2);cursor:auto}.faq summary{font-weight:600}
-</style></head><body>
+.seg{display:inline-flex;padding:3px;border-radius:99px;background:var(--g2);border:1px solid var(--st);margin:2px 0 6px}.seg button{border:0;background:none;color:var(--tx2);font:inherit;font-weight:600;padding:7px 16px;border-radius:99px;cursor:pointer}.seg button.on{background:var(--g3,rgba(255,255,255,.7));color:var(--tx);box-shadow:inset 0 1px 0 var(--hi,#fff)}.th .ext{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--tx2);letter-spacing:.4px}.kinds{margin:-4px 0 10px;color:var(--tx2);font-size:13px}</style></head><body>
 <div class="bg"><i></i><i></i></div>
 <div class="wrap">
 <header class="hero"><div class="pill">Private · Runs on your computer · Free</div>
 <h1>Sort your photos and videos by what is in them.</h1>
 <p class="sub">Pick a folder. A small AI on your own computer looks at each photo and video and sorts them into folders you choose. Nothing is uploaded, and nothing moves until you say so.</p></header>
-<section class="glass step" id="s2"><h2>Choose a folder to start</h2><p id="unsure">Works in Chrome on a computer. Files the AI isn't sure about go to "Needs a look".</p>
+<section class="glass step" id="s2"><h2>Choose a folder to start</h2><div class="seg" id="seg"><button type="button" data-mode="ai" class="on">By what's in it</button><button type="button" data-mode="date">By date</button></div><p class="stat" id="modeNote" style="margin:8px 0 12px">The AI looks at each photo and video and groups it by what it shows.</p><p id="unsure">Works in Chrome on a computer. Files the AI isn't sure about go to "Needs a look".</p>
 <div class="row"><button class="btn pri" id="pick">Choose folder &amp; scan</button><button class="btn" id="undo">Undo last move</button>
 <label class="stat">Sureness needed <select id="thr"><option value="0.28">Relaxed</option><option value="0.4" selected>Balanced</option><option value="0.55">Strict</option></select></label></div>
 <div class="row" style="margin-top:12px"><div class="bar"><b id="pb"></b></div><span class="stat" id="ps">Ready</span></div></section>
@@ -78,7 +78,11 @@ const DEF=[["Selfies & people","a close-up photo of a person or selfie"],["Food 
 let cats=JSON.parse(localStorage.getItem('ls_cats')||'null')||DEF.map(c=>({n:c[0],d:c[1]}));
 const SKIP=/^(\.|Library$|node_modules$|Sorted$)|\.(app|framework|bundle|photoslibrary|xcodeproj|lproj)$/i;
 const IMG=/\.(jpe?g|png|webp|gif|heic|bmp)$/i,VID=/\.(mov|mp4|m4v|webm)$/i;
-let root=null,items=[],cls=null,busy=false;
+let root=null,items=[],cls=null,busy=false,mode='ai';
+const DOC=/\.(pdf|docx?|txt|rtf|xlsx?|csv|pptx?|key|pages|numbers|md|html?)$/i,ARC=/\.(zip|rar|7z|tar|gz|dmg|pkg)$/i;
+const kindOf=n=>IMG.test(n)?'Photos':VID.test(n)?'Videos':DOC.test(n)?'Documents':ARC.test(n)?'Archives':'Other';
+const NOTE={ai:'The AI looks at each photo and video and groups it by what it shows.',date:'Files go into one folder per month, with Photos, Videos, Documents and Other inside. The date is when the file was last changed, because browsers can\'t read the exact created date.'};
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x===b));$('#modeNote').textContent=NOTE[mode];$('#s1').style.display=mode==='ai'?'':'none';$('#thr').closest('label').style.display=mode==='ai'?'':'none'});
 function drawCats(){$('#cats').innerHTML=cats.map((c,i)=>`<div class="cat"><input type="text" data-i="${i}" data-k="n" value="${esc(c.n)}" placeholder="Folder name"><button class="x" data-x="${i}">✕</button><input class="d" type="text" data-i="${i}" data-k="d" value="${esc(c.d)}" placeholder="Describe what's in it"></div>`).join('');
  document.querySelectorAll('#cats input').forEach(e=>e.oninput=()=>{cats[e.dataset.i][e.dataset.k]=e.value;localStorage.setItem('ls_cats',JSON.stringify(cats))});
  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{cats.splice(b.dataset.x,1);localStorage.setItem('ls_cats',JSON.stringify(cats));drawCats()})}
@@ -87,20 +91,22 @@ const prog=(p,t)=>{$('#pb').style.width=(p*100)+'%';$('#ps').textContent=t};
 async function model(){if(cls)return cls;prog(0,'Loading the AI model (first time ~150 MB)…');
  const T=await import('/vendor/transformers.min.js');T.env.backends.onnx.wasm.wasmPaths='/vendor/';T.env.allowLocalModels=false;
  cls=await T.pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32',{progress_callback:p=>{if(p.status==='progress')prog((p.progress||0)/100,'Downloading the AI model… '+Math.round(p.progress||0)+'%')}});return cls}
-async function* walk(dir,deep,rel=''){for await(const [name,h] of dir.entries()){if(SKIP.test(name))continue;
- if(h.kind==='file'){if(IMG.test(name)||VID.test(name))yield{h,dir,name,rel,video:VID.test(name)}}else if(deep)yield*walk(h,deep,rel+name+'/')}}
+async function* walk(dir,deep,all,rel=''){for await(const [name,h] of dir.entries()){if(SKIP.test(name))continue;
+ if(h.kind==='file'){if(all||IMG.test(name)||VID.test(name))yield{h,dir,name,rel,video:VID.test(name),sub:all?kindOf(name):''}}else if(deep)yield*walk(h,deep,all,rel+name+'/')}}
 async function thumb(it){const f=await it.h.getFile();
  if(!it.video){try{const b=await createImageBitmap(f,{resizeWidth:256});const c=document.createElement('canvas');c.width=b.width;c.height=b.height;c.getContext('2d').drawImage(b,0,0);return await new Promise(r=>c.toBlob(r,'image/jpeg',.8))}catch(e){return null}}
  return await new Promise(res=>{const v=document.createElement('video');v.muted=true;v.preload='auto';v.src=URL.createObjectURL(f);const fin=b=>{URL.revokeObjectURL(v.src);res(b)};
   v.onloadedmetadata=()=>{v.currentTime=Math.min(1,(v.duration||2)/2)};v.onseeked=()=>{const c=document.createElement('canvas'),s=256/(v.videoWidth||256);c.width=256;c.height=Math.round((v.videoHeight||256)*s);c.getContext('2d').drawImage(v,0,0,c.width,c.height);c.toBlob(fin,'image/jpeg',.8)};v.onerror=()=>fin(null);setTimeout(()=>fin(null),15000)})}
-$('#pick').onclick=async()=>{if(busy)return;const valid=cats.filter(c=>c.n.trim()&&c.d.trim());if(!valid.length)return alert('Add at least one group with a name and a description.');
+$('#pick').onclick=async()=>{if(busy)return;const valid=cats.filter(c=>c.n.trim()&&c.d.trim());if(mode==='ai'&&!valid.length)return alert('Add at least one group with a name and a description.');
  if(!window.showDirectoryPicker)return alert('Please open this page in Chrome.');
  try{root=await showDirectoryPicker({mode:'readwrite'})}catch(e){return}
  window.__hit&&window.__hit('scan');busy=true;$('#pick').disabled=true;$('#groups').innerHTML='';$('#done').classList.add('hide');items=[];
- try{const c=await model();const labels=valid.map(v=>v.d.trim()),thr=+$('#thr').value;prog(0,'Counting files…');
-  const list=[];for await(const it of walk(root,$('#sub').checked))list.push(it);
-  if(!list.length){prog(0,'No photos or videos found at the top level of that folder.');busy=false;$('#pick').disabled=false;return}
-  let n=0;for(const it of list){n++;prog(n/list.length,`Looking at ${n} of ${list.length}…`);
+ try{const c=mode==='ai'?await model():null;const labels=valid.map(v=>v.d.trim()),thr=+$('#thr').value;prog(0,'Counting files…');
+  const list=[];for await(const it of walk(root,$('#sub').checked,mode==='date'))list.push(it);
+  if(!list.length){prog(0,mode==='date'?'No files found in that folder.':'No photos or videos found at the top level of that folder.');busy=false;$('#pick').disabled=false;return}
+  let n=0;for(const it of list){n++;prog(n/list.length,`${mode==='date'?'Reading':'Looking at'} ${n} of ${list.length}…`);
+   if(mode==='date'){try{const f=await it.h.getFile(),d=new Date(f.lastModified);it.group=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+' '+d.toLocaleString('en',{month:'long'});
+     if(n<=80&&!it.video&&IMG.test(it.name)){const b=await thumb(it);if(b)it.url=URL.createObjectURL(b)}}catch(e){it.group='Needs a look'}items.push(it);if(n%25===0){render();await new Promise(r=>setTimeout(r))}continue}
    try{const b=await thumb(it);if(!b){it.group='Needs a look';items.push(it);continue}it.url=URL.createObjectURL(b);
     const out=await c(it.url,labels,{hypothesis_template:'a photo of {}.'});const top=out[0],ix=labels.indexOf(top.label);it.group=top.score>=thr?valid[ix].n.trim():'Needs a look'}catch(e){it.group='Needs a look'}
    items.push(it);if(n%6===0)render()}
@@ -108,7 +114,7 @@ $('#pick').onclick=async()=>{if(busy)return;const valid=cats.filter(c=>c.n.trim(
  busy=false;$('#pick').disabled=false};
 function names(){return[...cats.filter(c=>c.n.trim()).map(c=>c.n.trim()),'Needs a look']}
 function render(){const g={};items.forEach((it,i)=>{if(it.skip)return;(g[it.group]=g[it.group]||[]).push(i)});
- $('#groups').innerHTML=Object.entries(g).sort((a,b)=>b[1].length-a[1].length).map(([n,ix])=>`<div class="grp glass"><h3>${esc(n)}<span>${ix.length}</span></h3><div class="th">${ix.slice(0,60).map(i=>`<div data-i="${i}" class="${items[i].video?'v':''}" title="${esc(items[i].name)}">${items[i].url?`<img src="${items[i].url}">`:''}</div>`).join('')}</div>${ix.length>60?`<p class="stat">+${ix.length-60} more</p>`:''}</div>`).join('');
+ $('#groups').innerHTML=Object.entries(g).sort((a,b)=>mode==='date'?(a[0]<b[0]?1:-1):b[1].length-a[1].length).map(([n,ix])=>`<div class="grp glass"><h3>${esc(n)}<span>${ix.length}</span></h3>${mode==='date'?`<div class="kinds">${Object.entries(ix.reduce((o,i)=>(o[items[i].sub]=(o[items[i].sub]||0)+1,o),{})).map(([k,v])=>k+' '+v).join(' · ')}</div>`:''}<div class="th">${ix.slice(0,60).map(i=>`<div data-i="${i}" class="${items[i].video?'v':''}" title="${esc(items[i].name)}">${items[i].url?`<img src="${items[i].url}">`:`<span class="ext">${esc((items[i].name.split('.').pop()||'').slice(0,4).toUpperCase())}</span>`}</div>`).join('')}</div>${ix.length>60?`<p class="stat">+${ix.length-60} more</p>`:''}</div>`).join('');
  document.querySelectorAll('.th div').forEach(d=>d.onclick=()=>openPop(+d.dataset.i));
  const k=items.filter(i=>!i.skip&&i.group!=='Needs a look').length;$('#mv').classList.toggle('hide',!k);$('#mvt').textContent=`${k} files ready. Nothing has moved yet.`}
 let cur=0;function openPop(i){cur=i;const it=items[i];$('#pimg').src=it.url||'';$('#psel').innerHTML=names().map(n=>`<option ${n===it.group?'selected':''}>${esc(n)}</option>`).join('');$('#pop').classList.add('on')}
@@ -120,12 +126,12 @@ async function mvFile(it,toDir,name){try{await it.h.move(toDir,name);return true
  const f=await it.h.getFile(),nh=await toDir.getFileHandle(name,{create:true}),w=await nh.createWritable();await w.write(f);await w.close();await it.dir.removeEntry(it.name);return true}
 $('#go').onclick=async()=>{const todo=items.filter(i=>!i.skip&&i.group!=='Needs a look');if(!todo.length)return;busy=true;$('#go').disabled=true;
  const log=[];let done=0,fail=0;const sorted=await root.getDirectoryHandle('Sorted',{create:true});
- for(const it of todo){try{const dir=await sub(sorted,safe(it.group));let name=it.name;try{await dir.getFileHandle(name);name=Date.now()+'_'+name}catch(e){}
-   await mvFile(it,dir,name);log.push({from:it.rel,name:it.name,group:safe(it.group),to:name});done++}catch(e){fail++}
+ for(const it of todo){try{const gp=safe(it.group)+(it.sub?'/'+safe(it.sub):'');const dir=await sub(sorted,gp);let name=it.name;try{await dir.getFileHandle(name);name=Date.now()+'_'+name}catch(e){}
+   await mvFile(it,dir,name);log.push({from:it.rel,name:it.name,group:gp,to:name});done++}catch(e){fail++}
   $('#ps').textContent=`Moving ${done+fail} of ${todo.length}…`}
  const lh=await sorted.getFileHandle('.file-sorter-log.json',{create:true}),w=await lh.createWritable();await w.write(JSON.stringify({when:new Date().toISOString(),log}));await w.close();
  window.__hit&&window.__hit('sorted',done);$('#done').textContent=`Moved ${done} files into "Sorted" inside the folder you chose.`+(fail?` ${fail} could not be moved.`:'')+' You can undo it.';$('#done').classList.remove('hide');$('#mv').classList.add('hide');$('#groups').innerHTML='';items=[];busy=false;$('#go').disabled=false};
 $('#undo').onclick=async()=>{try{const r=await showDirectoryPicker({mode:'readwrite'}),s=await r.getDirectoryHandle('Sorted'),lf=await(await s.getFileHandle('.file-sorter-log.json')).getFile(),{log}=JSON.parse(await lf.text());let n=0;
-  for(const e of log){try{const gd=await s.getDirectoryHandle(e.group),fh=await gd.getFileHandle(e.to),back=await sub(r,e.from);const f=await fh.getFile();let nm=e.name;try{await back.getFileHandle(nm);nm='restored_'+Date.now()+'_'+nm}catch(_){ }const nh=await back.getFileHandle(nm,{create:true}),w=await nh.createWritable();await w.write(f);await w.close();await gd.removeEntry(e.to);n++}catch(x){}}
+  for(const e of log){try{const gd=await sub(s,e.group),fh=await gd.getFileHandle(e.to),back=await sub(r,e.from);const f=await fh.getFile();let nm=e.name;try{await back.getFileHandle(nm);nm='restored_'+Date.now()+'_'+nm}catch(_){ }const nh=await back.getFileHandle(nm,{create:true}),w=await nh.createWritable();await w.write(f);await w.close();await gd.removeEntry(e.to);n++}catch(x){}}
   await s.removeEntry('.file-sorter-log.json');$('#done').textContent=`Put ${n} files back where they were.`;$('#done').classList.remove('hide')}catch(e){alert('No earlier move found in that folder.')}};
 </script></body></html>
