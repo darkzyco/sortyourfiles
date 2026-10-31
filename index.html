@@ -35,7 +35,20 @@ input[type=text],select{font:inherit;color:var(--tx);background:var(--g2);border
 details.step>summary{cursor:pointer;list-style:none;padding:2px 0}details.step>summary::-webkit-details-marker{display:none}details.step>summary::after{content:"+";float:right;color:var(--tx2)}details.step[open]>summary::after{content:"–"}
 .how{margin:34px 0 0}.how h2{font-size:22px;letter-spacing:-.4px;margin:0 0 12px}.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.three>div{padding:18px}.three p{margin:6px 0 0;color:var(--tx2)}
 .faq{padding:14px 18px;margin-bottom:10px;cursor:pointer}.faq p{margin:8px 0 0;color:var(--tx2);cursor:auto}.faq summary{font-weight:600}
-.seg{display:inline-flex;padding:3px;border-radius:99px;background:var(--g2);border:1px solid var(--st);margin:2px 0 6px}.seg button{border:0;background:none;color:var(--tx2);font:inherit;font-weight:600;padding:7px 16px;border-radius:99px;cursor:pointer}.seg button.on{background:var(--g3,rgba(255,255,255,.7));color:var(--tx);box-shadow:inset 0 1px 0 var(--hi,#fff)}.th .ext{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--tx2);letter-spacing:.4px}.kinds{margin:-4px 0 10px;color:var(--tx2);font-size:13px}</style></head><body>
+.seg{display:inline-flex;padding:3px;border-radius:99px;background:var(--g2);border:1px solid var(--st);margin:2px 0 6px}.seg button{border:0;background:none;color:var(--tx2);font:inherit;font-weight:600;padding:7px 16px;border-radius:99px;cursor:pointer}.seg button.on{background:var(--g3,rgba(255,255,255,.7));color:var(--tx);box-shadow:inset 0 1px 0 var(--hi,#fff)}.th .ext{position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--tx2);letter-spacing:.4px}.kinds{margin:-4px 0 10px;color:var(--tx2);font-size:13px}
+#stage{position:relative;margin:14px 0;padding:18px;border-radius:26px;background:linear-gradient(160deg,#1c1b18,#121110);color:#f4efe6;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.12)}
+#stage .sh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}#stage .st{font-weight:700;font-size:16px;letter-spacing:-.2px}
+#stage .bd{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:5px 12px;border-radius:99px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#f1e3c0}#stage .bd.ok{background:#f1e3c0;color:#151412}
+#stage .sn{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 0}#stage .sn div{padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}#stage .sn small{display:block;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:rgba(244,239,230,.6)}#stage .sn b{font-size:22px;color:#f1e3c0;font-variant-numeric:tabular-nums}
+#stage .sp{height:210px}
+#sf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.fc{padding:9px 10px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);transition:border-color .25s,box-shadow .25s,transform .25s;animation:fcin .45s cubic-bezier(.2,1.4,.4,1) both}.fc.hit{border-color:#f1e3c0;box-shadow:0 0 18px rgba(241,227,192,.35)}
+.fc h4{margin:0 0 7px;display:flex;justify-content:space-between;gap:6px;font-size:12px;font-weight:600}.fc h4 span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fc h4 span:last-child{color:#f1e3c0;font-variant-numeric:tabular-nums}
+.fc .tl{display:flex;flex-wrap:wrap;gap:2px;min-height:14px}.fc .tl i{width:12px;height:12px;border-radius:3px;background-size:cover;background-position:center;animation:tpop .3s ease-out both}
+#stagec{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+@keyframes fcin{from{opacity:0;transform:translateY(10px) scale(.92)}}@keyframes tpop{from{transform:scale(.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){.fc,.fc .tl i{animation:none}}
+</style></head><body>
 <div class="bg"><i></i><i></i></div>
 <div class="wrap">
 <header class="hero"><div class="pill">Private · Runs on your computer · Free</div>
@@ -51,6 +64,11 @@ details.step>summary{cursor:pointer;list-style:none;padding:2px 0}details.step>s
 <h3 style="margin:18px 0 6px;font-size:15px">Document groups <span class="stat">· PDFs, Word, Excel, PowerPoint, text, web pages</span></h3><div class="cats" id="dcats"></div>
 <div class="row" style="margin-top:10px"><button class="btn" id="addDcat">+ Add document group</button></div>
 <div class="row" style="margin-top:12px"><button class="btn" id="addCat">+ Add group</button><label class="stat"><input type="checkbox" id="sub"> Include sub-folders (system and app folders are always skipped)</label></div></details>
+<div class="note hide" id="done"></div>
+<section id="stage" class="hide"><div class="sh"><span class="st" id="sttl">Sorting…</span><span class="bd" id="sbd">working</span></div><div class="sn"><div><small id="l1">Files found</small><b id="n1">0</b></div><div><small>Folders</small><b id="n2">0</b></div><div><small>Needs a look</small><b id="n3">0</b></div></div><div class="sp"></div><div id="sf"></div><canvas id="stagec"></canvas></section>
+<p class="tip hide" id="tip">Tip: use "Move all to…" on a group, drag files between groups, or Cmd/Ctrl-click files to pick several and move them together.</p>
+<div class="glass hide" id="selbar"><b id="selt">0 selected</b><select id="selto"></select><button class="btn" id="selgo">Move selected</button><button class="btn" id="selclr">Clear</button></div>
+<div class="groups" id="groups"></div>
 <section class="how"><h2>How it works</h2><div class="three">
 <div class="glass"><b>1 · Choose a folder</b><p>Pick any folder on your computer, such as Downloads or a camera roll.</p></div>
 <div class="glass"><b>2 · See the groups</b><p>The AI looks at every photo and video and shows them grouped. Change any file you disagree with.</p></div>
@@ -67,10 +85,6 @@ details.step>summary{cursor:pointer;list-style:none;padding:2px 0}details.step>s
 
 
 
-<div class="note hide" id="done"></div>
-<p class="tip hide" id="tip">Tip: use "Move all to…" on a group, drag files between groups, or Cmd/Ctrl-click files to pick several and move them together.</p>
-<div class="glass hide" id="selbar"><b id="selt">0 selected</b><select id="selto"></select><button class="btn" id="selgo">Move selected</button><button class="btn" id="selclr">Clear</button></div>
-<div class="groups" id="groups"></div>
 <p class="stat" style="text-align:center;margin-top:30px">Your files never leave your computer. We only count anonymous visits.</p></div>
 <div class="sticky glass hide" id="mv"><span id="mvt"></span><button class="btn pri" id="go">Move files into folders</button><button class="btn" id="reset">Start over</button></div>
 <div id="pop"><div class="box glass"><img id="pimg"><div id="ptxt" class="stat" style="max-width:80vw;max-height:40vh;overflow:auto;white-space:pre-wrap;display:none;margin:0 0 6px"></div><div class="row"><select id="psel"></select><button class="btn" id="pskip">Leave this file</button><button class="btn" id="pclose">Close</button></div></div></div>
@@ -100,6 +114,39 @@ function drawDcats(){$('#dcats').innerHTML=dcats.map((c,i)=>`<div class="cat"><i
  document.querySelectorAll('#dcats input').forEach(e=>e.oninput=()=>{dcats[e.dataset.i][e.dataset.k]=e.value;localStorage.setItem('ls_dcats',JSON.stringify(dcats))});
  document.querySelectorAll('[data-dx]').forEach(b=>b.onclick=()=>{dcats.splice(b.dataset.dx,1);localStorage.setItem('ls_dcats',JSON.stringify(dcats));drawDcats()})}
 $('#addDcat').onclick=()=>{dcats.push({n:'',d:''});drawDcats()};drawDcats();
+const anim=(()=>{const el=$('#stage'),cv=$('#stagec'),cx=cv.getContext('2d'),RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ const COL={Photos:'#e9c27a',Videos:'#d98a6c',Documents:'#f1e3c0',Archives:'#b9a98c',Other:'#9a9486'};
+ let total=0,done=0,fin=false,label='',cards={},pend=[],parts=[],dots=[],ang=0,last=0,raf=0,nF=0,nN=0,W=0,H=0,dpr=1;
+ const bd=(t,ok)=>{$('#sbd').textContent=t;$('#sbd').classList.toggle('ok',!!ok)};
+ const size=()=>{const r=el.getBoundingClientRect();dpr=Math.min(2,devicePixelRatio||1);W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0)};
+ function start(n,t){total=n;done=0;fin=false;cards={};pend=[];parts=[];nF=0;nN=0;$('#sf').innerHTML='';$('#sttl').textContent=t;$('#l1').textContent=t.startsWith('Moving')?'Files to move':'Files found';$('#n1').textContent=n;$('#n2').textContent=0;$('#n3').textContent=0;bd(t.startsWith('Moving')?'moving':'sorting',false);el.classList.remove('hide');size();
+  const m=Math.min(n,320);dots=[];for(let i=0;i<m;i++){const y=1-2*(i+.5)/m,r=Math.sqrt(1-y*y),th=i*2.399963;dots.push({x:Math.cos(th)*r,y,z:Math.sin(th)*r,c:'#f1e3c0'})}
+  try{el.scrollIntoView({block:'nearest',behavior:RM?'auto':'smooth'})}catch(e){}loop()}
+ function card(g){if(cards[g])return cards[g];const d=document.createElement('div');d.className='fc';d.innerHTML='<h4><span></span><span>0</span></h4><div class="tl"></div>';d.querySelector('span').textContent=g;$('#sf').appendChild(d);nF++;$('#n2').textContent=nF;return cards[g]={d,n:0,cnt:d.querySelectorAll('span')[1],tl:d.querySelector('.tl'),hit:0}}
+ function arrive(p){const c=p.c;c.n++;c.cnt.textContent=c.n;if(c.n<=64){const i=document.createElement('i');i.style.background=p.url?`url(${p.url}) center/cover`:p.col;c.tl.appendChild(i)}
+  c.d.classList.add('hit');clearTimeout(c.hit);c.hit=setTimeout(()=>c.d.classList.remove('hit'),260);if(p.g==='Needs a look'){nN++;$('#n3').textContent=nN}}
+ function add(it){pend.push({g:it.group||'Needs a look',url:it.url,col:COL[kindOf(it.name)]||COL.Other});loop()}
+ function finish(t){fin=t||'All sorted';loop()}
+ function end(t){bd('✓ '+t,true);$('#sttl').textContent=t==='All moved'?'Moved into folders':'Sorted'}
+ function proj(d){const a=ang,x=d.x*Math.cos(a)+d.z*Math.sin(a),z=-d.x*Math.sin(a)+d.z*Math.cos(a),R=100,p=1/(1.9-z*.55);return{x:W/2+x*R*p*1.7,y:150+d.y*R*p*1.2-70,z,s:p}}
+ function release(){const k=RM?pend.length:Math.min(pend.length,1+Math.floor(pend.length/18));
+  for(let i=0;i<k;i++){const p=pend.shift(),c=card(p.g);p.c=c;done++;const quick=RM||parts.length>70||pend.length>200;
+   const keep=Math.ceil(dots.length*Math.max(0,total-done)/Math.max(1,total));let from=null;while(dots.length>keep){const d=dots.pop();if(!from)from=proj(d)}
+   if(quick||!from)arrive(p);else parts.push({p,sx:from.x,sy:from.y,t:0,dur:520+Math.random()*260,col:p.col})}}
+ function frame(ts){raf=0;const dt=Math.min(.05,(ts-(last||ts))/1000);last=ts;ang+=dt*(RM?0:.7);cx.clearRect(0,0,W,H);
+  if(pend.length)release();
+  const rs=el.getBoundingClientRect();
+  if(dots.length){const pr=dots.map(proj).sort((a,b)=>a.z-b.z);for(const q of pr){cx.globalAlpha=.35+.5*(q.z+1)/2;cx.fillStyle='#f1e3c0';cx.beginPath();cx.arc(q.x,q.y,1.2+q.s*1.8,0,7);cx.fill()}cx.globalAlpha=1}
+  for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.t+=dt*1000;const u=Math.min(1,q.t/q.dur),e=u*u*(3-2*u),r=q.p.c.d.getBoundingClientRect(),tx=r.left-rs.left+r.width/2,ty=r.top-rs.top+r.height*.6,x=q.sx+(tx-q.sx)*e,y=q.sy+(ty-q.sy)*e-Math.sin(Math.PI*u)*34;
+   for(let k=1;k<=4;k++){const u2=Math.max(0,u-k*.04),e2=u2*u2*(3-2*u2);cx.globalAlpha=.22/k;cx.fillStyle=q.col;cx.beginPath();cx.arc(q.sx+(tx-q.sx)*e2,q.sy+(ty-q.sy)*e2-Math.sin(Math.PI*u2)*34,4-k*.6,0,7);cx.fill()}
+   cx.globalAlpha=1;cx.shadowColor=q.col;cx.shadowBlur=10;cx.fillStyle=q.col;cx.fillRect(x-4,y-4,8,8);cx.shadowBlur=0;
+   if(u>=1){parts.splice(i,1);arrive(q.p)}}
+  if(fin&&!pend.length&&!parts.length&&typeof fin==='string'){end(fin);fin=true;dots=[]}
+  if(pend.length||parts.length||(dots.length&&fin!==true))loop()}
+ function loop(){if(!raf)raf=requestAnimationFrame(frame)}
+ addEventListener('resize',()=>{if(!el.classList.contains('hide'))size()});
+ return{start,add,finish}})();
+function put(it){items.push(it);anim.add(it)}
 const prog=(p,t)=>{$('#pb').style.width=(p*100)+'%';$('#ps').textContent=t};
 let TL=null,emb=null;async function lib(){if(TL)return TL;TL=await import('/vendor/transformers.min.js');TL.env.backends.onnx.wasm.wasmPaths='/vendor/';TL.env.allowLocalModels=false;return TL}
 async function embedder(){if(emb)return emb;prog(0,'Loading the document reader (first time ~25 MB)…');const T=await lib();
@@ -141,16 +188,16 @@ $('#pick').onclick=async()=>{if(busy)return;const valid=cats.filter(c=>c.n.trim(
  try{let c=null,dl=null;const labels=valid.map(v=>v.d.trim()),thr=+$('#thr').value,dthr={0.28:.17,0.4:.24,0.55:.32}[thr]||.24,dvalid=dcats.filter(v=>v.n.trim()&&v.d.trim()),wantDocs=mode==='ai'&&$('#docs').checked&&dvalid.length>0;prog(0,'Counting files…');
   const list=[];for await(const it of walk(root,$('#sub').checked,mode==='date',wantDocs))list.push(it);
   if(!list.length){prog(0,mode==='date'?'No files found in that folder.':'No photos, videos or documents found at the top level of that folder.');busy=false;$('#pick').disabled=false;return}
-  let n=0;for(const it of list){n++;prog(n/list.length,`${mode==='date'?'Reading':'Looking at'} ${n} of ${list.length}…`);
+  anim.start(list.length,'Sorting…');let n=0;for(const it of list){n++;prog(n/list.length,`${mode==='date'?'Reading':'Looking at'} ${n} of ${list.length}…`);
    if(mode==='date'){try{const f=await it.h.getFile(),d=new Date(f.lastModified);it.group=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+' '+d.toLocaleString('en',{month:'long'});
-     if(n<=80&&!it.video&&IMG.test(it.name)){const b=await thumb(it);if(b)it.url=URL.createObjectURL(b)}}catch(e){it.group='Needs a look'}items.push(it);if(n%25===0){render();await new Promise(r=>setTimeout(r))}continue}
+     if(n<=80&&!it.video&&IMG.test(it.name)){const b=await thumb(it);if(b)it.url=URL.createObjectURL(b)}}catch(e){it.group='Needs a look'}put(it);if(n%25===0){render();await new Promise(r=>setTimeout(r))}continue}
    if(it.doc){try{if(!dl){const E=await embedder();dl=[];for(const v of dvalid)dl.push(await embed(v.n.trim()+': '+v.d.trim()))}
      const t=await docText(it);if(t.replace(/\W/g,'').length<6){it.group='Needs a look'}else{const q=await embed(t),sc=dl.map(v=>dot(q,v)),bi=sc.indexOf(Math.max(...sc));it.group=sc[bi]>=dthr?dvalid[bi].n.trim():'Needs a look'}}catch(e){it.group='Needs a look'}
-    items.push(it);if(n%6===0){render();await new Promise(r=>setTimeout(r))}continue}
-   try{if(!c)c=await model();const b=await thumb(it);if(!b){it.group='Needs a look';items.push(it);continue}it.url=URL.createObjectURL(b);
+    put(it);if(n%6===0){render();await new Promise(r=>setTimeout(r))}continue}
+   try{if(!c)c=await model();const b=await thumb(it);if(!b){it.group='Needs a look';put(it);continue}it.url=URL.createObjectURL(b);
     const out=await c(it.url,labels,{hypothesis_template:'a photo of {}.'});const top=out[0],ix=labels.indexOf(top.label);it.group=top.score>=thr?valid[ix].n.trim():'Needs a look'}catch(e){it.group='Needs a look'}
-   items.push(it);if(n%6===0)render()}
-  prog(1,`Looked at ${list.length} files. Check the groups below.`);render()}catch(e){prog(0,'Something went wrong: '+e.message)}
+   put(it);if(n%6===0)render()}
+  prog(1,`Looked at ${list.length} files. Check the groups below.`);anim.finish('All sorted');render()}catch(e){prog(0,'Something went wrong: '+e.message)}
  busy=false;$('#pick').disabled=false};
 function names(){return[...new Set([...cats.filter(c=>c.n.trim()).map(c=>c.n.trim()),...dcats.filter(c=>c.n.trim()).map(c=>c.n.trim())]),'Needs a look']}
 function render(){const g={};items.forEach((it,i)=>{if(it.skip)return;(g[it.group]=g[it.group]||[]).push(i)});
@@ -173,12 +220,12 @@ async function sub(d,path){let h=d;for(const p of path.split('/').filter(Boolean
 async function mvFile(it,toDir,name){try{await it.h.move(toDir,name);return true}catch(e){}
  const f=await it.h.getFile(),nh=await toDir.getFileHandle(name,{create:true}),w=await nh.createWritable();await w.write(f);await w.close();await it.dir.removeEntry(it.name);return true}
 $('#go').onclick=async()=>{const todo=items.filter(i=>!i.skip&&(i.group!=='Needs a look'||i.doc));if(!todo.length)return;busy=true;$('#go').disabled=true;
- const log=[];let done=0,fail=0;const sorted=await root.getDirectoryHandle('Sorted',{create:true});
+ const log=[];let done=0,fail=0;anim.start(todo.length,'Moving…');const sorted=await root.getDirectoryHandle('Sorted',{create:true});
  for(const it of todo){try{const gp=safe(it.group)+(it.sub?'/'+safe(it.sub):'');const dir=await sub(sorted,gp);let name=it.name;try{await dir.getFileHandle(name);name=Date.now()+'_'+name}catch(e){}
-   await mvFile(it,dir,name);log.push({from:it.rel,name:it.name,group:gp,to:name});done++}catch(e){fail++}
+   await mvFile(it,dir,name);log.push({from:it.rel,name:it.name,group:gp,to:name});done++;anim.add(it)}catch(e){fail++}
   $('#ps').textContent=`Moving ${done+fail} of ${todo.length}…`}
  const lh=await sorted.getFileHandle('.file-sorter-log.json',{create:true}),w=await lh.createWritable();await w.write(JSON.stringify({when:new Date().toISOString(),log}));await w.close();
- window.__hit&&window.__hit('sorted',done);$('#done').textContent=`Moved ${done} files into "Sorted" inside the folder you chose.`+(fail?` ${fail} could not be moved.`:'')+' You can undo it.';$('#done').classList.remove('hide');$('#mv').classList.add('hide');$('#groups').innerHTML='';items=[];sel.clear();busy=false;$('#go').disabled=false};
+ window.__hit&&window.__hit('sorted',done);anim.finish('All moved');$('#done').textContent=`Moved ${done} files into "Sorted" inside the folder you chose.`+(fail?` ${fail} could not be moved.`:'')+' You can undo it.';$('#done').classList.remove('hide');$('#mv').classList.add('hide');$('#groups').innerHTML='';items=[];sel.clear();busy=false;$('#go').disabled=false};
 $('#undo').onclick=async()=>{try{const r=await showDirectoryPicker({mode:'readwrite'}),s=await r.getDirectoryHandle('Sorted'),lf=await(await s.getFileHandle('.file-sorter-log.json')).getFile(),{log}=JSON.parse(await lf.text());let n=0;
   for(const e of log){try{const gd=await sub(s,e.group),fh=await gd.getFileHandle(e.to),back=await sub(r,e.from);const f=await fh.getFile();let nm=e.name;try{await back.getFileHandle(nm);nm='restored_'+Date.now()+'_'+nm}catch(_){ }const nh=await back.getFileHandle(nm,{create:true}),w=await nh.createWritable();await w.write(f);await w.close();await gd.removeEntry(e.to);n++}catch(x){}}
   await s.removeEntry('.file-sorter-log.json');$('#done').textContent=`Put ${n} files back where they were.`;$('#done').classList.remove('hide')}catch(e){alert('No earlier move found in that folder.')}};
