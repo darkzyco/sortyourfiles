@@ -39,23 +39,27 @@ details.step>summary{cursor:pointer;list-style:none;padding:2px 0}details.step>s
 <div class="bg"><i></i><i></i></div>
 <div class="wrap">
 <header class="hero"><div class="pill">Private · Runs on your computer · Free</div>
-<h1>Sort your photos and videos by what is in them.</h1>
-<p class="sub">Pick a folder. A small AI on your own computer looks at each photo and video and sorts them into folders you choose. Nothing is uploaded, and nothing moves until you say so.</p></header>
-<section class="glass step" id="s2"><h2>Choose a folder to start</h2><div class="seg" id="seg"><button type="button" data-mode="ai" class="on">By what's in it</button><button type="button" data-mode="date">By date</button></div><p class="stat" id="modeNote" style="margin:8px 0 12px">The AI looks at each photo and video and groups it by what it shows.</p><p id="unsure">Works in Chrome on a computer. Files the AI isn't sure about go to "Needs a look".</p>
+<h1>Sort your photos, videos and documents by what is in them.</h1>
+<p class="sub">Pick a folder. A small AI on your own computer looks at each photo and video, and reads your PDFs, Word, Excel, PowerPoint, text and web files, then sorts them into folders you choose. Nothing is uploaded, and nothing moves until you say so.</p></header>
+<section class="glass step" id="s2"><h2>Choose a folder to start</h2><div class="seg" id="seg"><button type="button" data-mode="ai" class="on">By what's in it</button><button type="button" data-mode="date">By date</button></div><p class="stat" id="modeNote" style="margin:8px 0 12px">The AI looks at each photo and video, and reads each document, and groups it by what it shows or says.</p><p id="unsure">Works in Chrome on a computer. Files the AI isn't sure about go to "Needs a look".</p>
 <div class="row"><button class="btn pri" id="pick">Choose folder &amp; scan</button><button class="btn" id="undo">Undo last move</button>
+<label class="stat" id="docsLbl"><input type="checkbox" id="docs" checked> Also sort documents</label>
 <label class="stat">Sureness needed <select id="thr"><option value="0.28">Relaxed</option><option value="0.4" selected>Balanced</option><option value="0.55">Strict</option></select></label></div>
 <div class="row" style="margin-top:12px"><div class="bar"><b id="pb"></b></div><span class="stat" id="ps">Ready</span></div></section>
 <details class="glass step" id="s1"><summary><b>Customize your groups</b> <span class="stat">· rename them or add your own, such as a client</span></summary><div style="height:10px"></div><p>Name each folder and describe what belongs in it in a few words. The AI matches each file to the closest description. Add your own, for example a client.</p>
 <div class="cats" id="cats"></div>
+<h3 style="margin:18px 0 6px;font-size:15px">Document groups <span class="stat">· PDFs, Word, Excel, PowerPoint, text, web pages</span></h3><div class="cats" id="dcats"></div>
+<div class="row" style="margin-top:10px"><button class="btn" id="addDcat">+ Add document group</button></div>
 <div class="row" style="margin-top:12px"><button class="btn" id="addCat">+ Add group</button><label class="stat"><input type="checkbox" id="sub"> Include sub-folders (system and app folders are always skipped)</label></div></details>
 <section class="how"><h2>How it works</h2><div class="three">
 <div class="glass"><b>1 · Choose a folder</b><p>Pick any folder on your computer, such as Downloads or a camera roll.</p></div>
 <div class="glass"><b>2 · See the groups</b><p>The AI looks at every photo and video and shows them grouped. Change any file you disagree with.</p></div>
 <div class="glass"><b>3 · Move, or undo</b><p>One click moves files into a Sorted folder. Not happy? Undo puts everything back.</p></div></div></section>
 <section class="how"><h2>Questions</h2>
-<details class="glass faq"><summary>Are my files uploaded?</summary><p>No. The AI runs inside your browser on your own computer. Only a one-time download of the AI model, about 150 MB, happens the first time.</p></details>
+<details class="glass faq"><summary>Are my files uploaded?</summary><p>No. The AI runs inside your browser on your own computer. Only a one-time download of the AI model, about 150 MB for photos and 25 MB more for documents, happens the first time.</p></details>
 <details class="glass faq"><summary>Which browser do I need?</summary><p>Chrome on a computer (Mac, Windows or Linux). It needs Chrome's folder access, which phones and Safari don't have yet.</p></details>
 <details class="glass faq"><summary>Can it delete my files?</summary><p>No. It only moves files into a Sorted folder inside the folder you chose, and the Undo button puts them back.</p></details>
+<details class="glass faq"><summary>Can it sort documents like PDFs and Word files?</summary><p>Yes. It reads the text inside PDFs, Word, PowerPoint, Excel, text and web files on your computer and groups them by meaning, for example invoices, resumes or study notes. Scanned PDFs that are only pictures have no text to read, so they are grouped by file name or left in "Needs a look". Old formats such as .doc and .xls are grouped by file name.</p></details>
 <details class="glass faq"><summary>Does it work on videos?</summary><p>Yes. It looks at one frame of each video to decide where it belongs.</p></details></section>
 <p class="stat" style="text-align:center;margin:28px 0 8px">Free to use, no sign-in. If it saved you time, <a href="https://buymeacoffee.com/rohithkrishnanpj" target="_blank" rel="noopener" style="color:inherit;font-weight:600">buy me a coffee ☕</a></p>
 
@@ -67,7 +71,7 @@ details.step>summary{cursor:pointer;list-style:none;padding:2px 0}details.step>s
 <div class="groups" id="groups"></div>
 <p class="stat" style="text-align:center;margin-top:30px">Your files never leave your computer. We only count anonymous visits.</p></div>
 <div class="sticky glass hide" id="mv"><span id="mvt"></span><button class="btn pri" id="go">Move files into folders</button><button class="btn" id="reset">Start over</button></div>
-<div id="pop"><div class="box glass"><img id="pimg"><div class="row"><select id="psel"></select><button class="btn" id="pskip">Leave this file</button><button class="btn" id="pclose">Close</button></div></div></div>
+<div id="pop"><div class="box glass"><img id="pimg"><div id="ptxt" class="stat" style="max-width:80vw;max-height:40vh;overflow:auto;white-space:pre-wrap;display:none;margin:0 0 6px"></div><div class="row"><select id="psel"></select><button class="btn" id="pskip">Leave this file</button><button class="btn" id="pclose">Close</button></div></div></div>
 
 <script>
 (function(){try{if(navigator.doNotTrack==='1')return;let id=localStorage.getItem('sf_id');if(!id){id=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>(b%36).toString(36)).join('')+Date.now().toString(36);localStorage.setItem('sf_id',id)}
@@ -78,22 +82,52 @@ const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&'
 const DEF=[["Selfies & people","a close-up photo of a person or selfie"],["Food & drinks","a plate of food or a drink"],["Travel & places","a street, building or travel place"],["Nature","trees, sky, plants or landscape"],["Vehicles & cars","a car, scooter or vehicle"],["Events & crowds","a crowd of people at an event or stage"],["Shops & products","a shop shelf or product"],["Documents & screenshots","a screenshot, document or text on a screen"],["Work & desk","a desk, laptop or office work"]];
 let cats=JSON.parse(localStorage.getItem('ls_cats')||'null')||DEF.map(c=>({n:c[0],d:c[1]}));
 const SKIP=/^(\.|Library$|node_modules$|Sorted$)|\.(app|framework|bundle|photoslibrary|xcodeproj|lproj)$/i;
+const DOCDEF=[["Invoices & bills","an invoice, bill, receipt or payment statement with amounts"],["Resumes & CVs","a resume or CV with work experience, education and skills"],["Contracts & legal","a contract, agreement, terms or legal document"],["Study notes & books","study notes, a textbook chapter, lecture or course material"],["Reports & proposals","a business report, proposal, plan or presentation"],["Spreadsheets & data","a spreadsheet or table of numbers and data"],["Forms & applications","a form, application, certificate or ID document"],["Web pages & code","a web page, source code or technical documentation"]];
+let dcats=JSON.parse(localStorage.getItem('ls_dcats')||'null')||DOCDEF.map(c=>({n:c[0],d:c[1]}));
 const IMG=/\.(jpe?g|png|webp|gif|heic|bmp)$/i,VID=/\.(mov|mp4|m4v|webm)$/i;
 let root=null,items=[],cls=null,busy=false,mode='ai';
-const DOC=/\.(pdf|docx?|txt|rtf|xlsx?|csv|pptx?|key|pages|numbers|md|html?)$/i,ARC=/\.(zip|rar|7z|tar|gz|dmg|pkg)$/i;
+const DOC=/\.(pdf|docx?|txt|rtf|xlsx?|csv|tsv|pptx?|key|pages|numbers|md|html?|odt|ods|odp|json|xml|log)$/i,ARC=/\.(zip|rar|7z|tar|gz|dmg|pkg)$/i;
 const kindOf=n=>IMG.test(n)?'Photos':VID.test(n)?'Videos':DOC.test(n)?'Documents':ARC.test(n)?'Archives':'Other';
-const NOTE={ai:'The AI looks at each photo and video and groups it by what it shows.',date:'Files go into one folder per month, with Photos, Videos, Documents and Other inside. The date is when the file was last changed, because browsers can\'t read the exact created date.'};
-document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x===b));$('#modeNote').textContent=NOTE[mode];$('#s1').style.display=mode==='ai'?'':'none';$('#thr').closest('label').style.display=mode==='ai'?'':'none'});
+const NOTE={ai:'The AI looks at each photo and video, and reads each document, and groups it by what it shows or says.',date:'Files go into one folder per month, with Photos, Videos, Documents and Other inside. The date is when the file was last changed, because browsers can\'t read the exact created date.'};
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('on',x===b));$('#modeNote').textContent=NOTE[mode];$('#s1').style.display=mode==='ai'?'':'none';$('#thr').closest('label').style.display=mode==='ai'?'':'none';$('#docsLbl').style.display=mode==='ai'?'':'none'});
 function drawCats(){$('#cats').innerHTML=cats.map((c,i)=>`<div class="cat"><input type="text" data-i="${i}" data-k="n" value="${esc(c.n)}" placeholder="Folder name"><button class="x" data-x="${i}">✕</button><input class="d" type="text" data-i="${i}" data-k="d" value="${esc(c.d)}" placeholder="Describe what's in it"></div>`).join('');
  document.querySelectorAll('#cats input').forEach(e=>e.oninput=()=>{cats[e.dataset.i][e.dataset.k]=e.value;localStorage.setItem('ls_cats',JSON.stringify(cats))});
  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{cats.splice(b.dataset.x,1);localStorage.setItem('ls_cats',JSON.stringify(cats));drawCats()})}
 $('#addCat').onclick=()=>{cats.push({n:'',d:''});drawCats()};drawCats();
+function drawDcats(){$('#dcats').innerHTML=dcats.map((c,i)=>`<div class="cat"><input type="text" data-i="${i}" data-k="n" value="${esc(c.n)}" placeholder="Folder name"><button class="x" data-dx="${i}">✕</button><input class="d" type="text" data-i="${i}" data-k="d" value="${esc(c.d)}" placeholder="Describe what's in it"></div>`).join('');
+ document.querySelectorAll('#dcats input').forEach(e=>e.oninput=()=>{dcats[e.dataset.i][e.dataset.k]=e.value;localStorage.setItem('ls_dcats',JSON.stringify(dcats))});
+ document.querySelectorAll('[data-dx]').forEach(b=>b.onclick=()=>{dcats.splice(b.dataset.dx,1);localStorage.setItem('ls_dcats',JSON.stringify(dcats));drawDcats()})}
+$('#addDcat').onclick=()=>{dcats.push({n:'',d:''});drawDcats()};drawDcats();
 const prog=(p,t)=>{$('#pb').style.width=(p*100)+'%';$('#ps').textContent=t};
+let TL=null,emb=null;async function lib(){if(TL)return TL;TL=await import('/vendor/transformers.min.js');TL.env.backends.onnx.wasm.wasmPaths='/vendor/';TL.env.allowLocalModels=false;return TL}
+async function embedder(){if(emb)return emb;prog(0,'Loading the document reader (first time ~25 MB)…');const T=await lib();
+ emb=await T.pipeline('feature-extraction','Xenova/all-MiniLM-L6-v2',{progress_callback:p=>{if(p.status==='progress')prog((p.progress||0)/100,'Downloading the document reader… '+Math.round(p.progress||0)+'%')}});return emb}
+const embed=async t=>Array.from((await emb(t,{pooling:'mean',normalize:true})).data);
+const dot=(a,b)=>{let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s};
+function clean(s){return String(s).replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#?\w+;/g,' ').replace(/\s+/g,' ').trim()}
+async function zipText(f,match,cap){const buf=new Uint8Array(await f.arrayBuffer()),dv=new DataView(buf.buffer);let e=buf.length-22;while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;if(e<0)return'';
+ const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const ents=[];
+ for(let i=0;i<n;i++){if(dv.getUint32(p,true)!==0x02014b50)break;const meth=dv.getUint16(p+10,true),csz=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),off=dv.getUint32(p+42,true),name=new TextDecoder().decode(buf.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;if(match.test(name))ents.push({meth,csz,off,name})}
+ ents.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));let out='';
+ for(const x of ents){if(out.length>cap)break;const lnl=dv.getUint16(x.off+26,true),lxl=dv.getUint16(x.off+28,true),st=x.off+30+lnl+lxl,data=buf.subarray(st,st+x.csz);let xml='';
+  try{xml=x.meth===0?new TextDecoder().decode(data):x.meth===8?await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text():''}catch(er){}
+  out+=' '+clean(xml.replace(/<\/(w:p|a:p|text:p|si|row)>/g,' ').replace(/<[^>]+>/g,' '))}
+ return out}
+let pdfReady=null;function pdfLib(){return pdfReady||(pdfReady=new Promise((ok,no)=>{const s=document.createElement('script');s.src='/vendor/pdf.min.js';s.onload=()=>{window.pdfjsLib.GlobalWorkerOptions.workerSrc='/vendor/pdf.worker.min.js';ok(window.pdfjsLib)};s.onerror=()=>no(new Error('pdf'));document.head.appendChild(s)}))}
+async function docText(it){const f=await it.h.getFile(),nm=it.name,big=f.size>80e6;let txt='';
+ try{if(big){}
+ else if(/\.pdf$/i.test(nm)){const L=await pdfLib(),d=await L.getDocument({data:await f.arrayBuffer(),isEvalSupported:false}).promise;
+   for(let i=1;i<=Math.min(3,d.numPages)&&txt.length<2500;i++){const pg=await d.getPage(i);txt+=' '+(await pg.getTextContent()).items.map(x=>x.str).join(' ');
+    if(i===1){try{const v0=pg.getViewport({scale:1}),sc=200/v0.width,v=pg.getViewport({scale:sc}),c=document.createElement('canvas');c.width=Math.round(v.width);c.height=Math.round(v.height);await pg.render({canvasContext:c.getContext('2d'),viewport:v}).promise;const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.75));if(b)it.url=URL.createObjectURL(b)}catch(er){}}}
+   d.destroy()}
+  else if(/\.(docx|pptx|xlsx|odt|odp|ods)$/i.test(nm))txt=await zipText(f,/^(word\/document\.xml|ppt\/slides\/slide\d+\.xml|xl\/sharedStrings\.xml|content\.xml)$/,2500);
+  else if(/\.(txt|md|csv|tsv|json|xml|log|html?|rtf)$/i.test(nm)){let t=await f.slice(0,80000).text();if(/\.html?$/i.test(nm))t=t.replace(/<(script|style)[\s\S]*?<\/\1>/gi,' ').replace(/<[^>]+>/g,' ');else if(/\.rtf$/i.test(nm))t=t.replace(/\\[a-z]+-?\d* ?|[{}]/gi,' ');txt=clean(t)}}catch(er){}
+ txt=clean(txt).slice(0,1500);it.snip=txt;return nm.replace(/\.[^.]+$/,'').replace(/[_\-.]+/g,' ')+'. '+txt}
 async function model(){if(cls)return cls;prog(0,'Loading the AI model (first time ~150 MB)…');
- const T=await import('/vendor/transformers.min.js');T.env.backends.onnx.wasm.wasmPaths='/vendor/';T.env.allowLocalModels=false;
+ const T=await lib();
  cls=await T.pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32',{progress_callback:p=>{if(p.status==='progress')prog((p.progress||0)/100,'Downloading the AI model… '+Math.round(p.progress||0)+'%')}});return cls}
-async function* walk(dir,deep,all,rel=''){for await(const [name,h] of dir.entries()){if(SKIP.test(name))continue;
- if(h.kind==='file'){if(all||IMG.test(name)||VID.test(name))yield{h,dir,name,rel,video:VID.test(name),sub:all?kindOf(name):''}}else if(deep)yield*walk(h,deep,all,rel+name+'/')}}
+async function* walk(dir,deep,all,docs,rel=''){for await(const [name,h] of dir.entries()){if(SKIP.test(name))continue;
+ if(h.kind==='file'){if(all||IMG.test(name)||VID.test(name)||(docs&&DOC.test(name)))yield{h,dir,name,rel,video:VID.test(name),doc:!all&&DOC.test(name)&&!IMG.test(name)&&!VID.test(name),sub:all?kindOf(name):''}}else if(deep)yield*walk(h,deep,all,docs,rel+name+'/')}}
 async function thumb(it){const f=await it.h.getFile();
  if(!it.video){try{const b=await createImageBitmap(f,{resizeWidth:256});const c=document.createElement('canvas');c.width=b.width;c.height=b.height;c.getContext('2d').drawImage(b,0,0);return await new Promise(r=>c.toBlob(r,'image/jpeg',.8))}catch(e){return null}}
  return await new Promise(res=>{const v=document.createElement('video');v.muted=true;v.preload='auto';v.src=URL.createObjectURL(f);const fin=b=>{URL.revokeObjectURL(v.src);res(b)};
@@ -102,23 +136,26 @@ $('#pick').onclick=async()=>{if(busy)return;const valid=cats.filter(c=>c.n.trim(
  if(!window.showDirectoryPicker)return alert('Please open this page in Chrome.');
  try{root=await showDirectoryPicker({mode:'readwrite'})}catch(e){return}
  window.__hit&&window.__hit('scan');busy=true;$('#pick').disabled=true;$('#groups').innerHTML='';$('#done').classList.add('hide');items=[];
- try{const c=mode==='ai'?await model():null;const labels=valid.map(v=>v.d.trim()),thr=+$('#thr').value;prog(0,'Counting files…');
-  const list=[];for await(const it of walk(root,$('#sub').checked,mode==='date'))list.push(it);
-  if(!list.length){prog(0,mode==='date'?'No files found in that folder.':'No photos or videos found at the top level of that folder.');busy=false;$('#pick').disabled=false;return}
+ try{let c=null,dl=null;const labels=valid.map(v=>v.d.trim()),thr=+$('#thr').value,dthr={0.28:.17,0.4:.24,0.55:.32}[thr]||.24,dvalid=dcats.filter(v=>v.n.trim()&&v.d.trim()),wantDocs=mode==='ai'&&$('#docs').checked&&dvalid.length>0;prog(0,'Counting files…');
+  const list=[];for await(const it of walk(root,$('#sub').checked,mode==='date',wantDocs))list.push(it);
+  if(!list.length){prog(0,mode==='date'?'No files found in that folder.':'No photos, videos or documents found at the top level of that folder.');busy=false;$('#pick').disabled=false;return}
   let n=0;for(const it of list){n++;prog(n/list.length,`${mode==='date'?'Reading':'Looking at'} ${n} of ${list.length}…`);
    if(mode==='date'){try{const f=await it.h.getFile(),d=new Date(f.lastModified);it.group=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+' '+d.toLocaleString('en',{month:'long'});
      if(n<=80&&!it.video&&IMG.test(it.name)){const b=await thumb(it);if(b)it.url=URL.createObjectURL(b)}}catch(e){it.group='Needs a look'}items.push(it);if(n%25===0){render();await new Promise(r=>setTimeout(r))}continue}
-   try{const b=await thumb(it);if(!b){it.group='Needs a look';items.push(it);continue}it.url=URL.createObjectURL(b);
+   if(it.doc){try{if(!dl){const E=await embedder();dl=[];for(const v of dvalid)dl.push(await embed(v.n.trim()+': '+v.d.trim()))}
+     const t=await docText(it);if(t.replace(/\W/g,'').length<6){it.group='Needs a look'}else{const q=await embed(t),sc=dl.map(v=>dot(q,v)),bi=sc.indexOf(Math.max(...sc));it.group=sc[bi]>=dthr?dvalid[bi].n.trim():'Needs a look'}}catch(e){it.group='Needs a look'}
+    items.push(it);if(n%6===0){render();await new Promise(r=>setTimeout(r))}continue}
+   try{if(!c)c=await model();const b=await thumb(it);if(!b){it.group='Needs a look';items.push(it);continue}it.url=URL.createObjectURL(b);
     const out=await c(it.url,labels,{hypothesis_template:'a photo of {}.'});const top=out[0],ix=labels.indexOf(top.label);it.group=top.score>=thr?valid[ix].n.trim():'Needs a look'}catch(e){it.group='Needs a look'}
    items.push(it);if(n%6===0)render()}
   prog(1,`Looked at ${list.length} files. Check the groups below.`);render()}catch(e){prog(0,'Something went wrong: '+e.message)}
  busy=false;$('#pick').disabled=false};
-function names(){return[...cats.filter(c=>c.n.trim()).map(c=>c.n.trim()),'Needs a look']}
+function names(){return[...new Set([...cats.filter(c=>c.n.trim()).map(c=>c.n.trim()),...dcats.filter(c=>c.n.trim()).map(c=>c.n.trim())]),'Needs a look']}
 function render(){const g={};items.forEach((it,i)=>{if(it.skip)return;(g[it.group]=g[it.group]||[]).push(i)});
  $('#groups').innerHTML=Object.entries(g).sort((a,b)=>mode==='date'?(a[0]<b[0]?1:-1):b[1].length-a[1].length).map(([n,ix])=>`<div class="grp glass"><h3>${esc(n)}<span>${ix.length}</span></h3>${mode==='date'?`<div class="kinds">${Object.entries(ix.reduce((o,i)=>(o[items[i].sub]=(o[items[i].sub]||0)+1,o),{})).map(([k,v])=>k+' '+v).join(' · ')}</div>`:''}<div class="th">${ix.slice(0,60).map(i=>`<div data-i="${i}" class="${items[i].video?'v':''}" title="${esc(items[i].name)}">${items[i].url?`<img src="${items[i].url}">`:`<span class="ext">${esc((items[i].name.split('.').pop()||'').slice(0,4).toUpperCase())}</span>`}</div>`).join('')}</div>${ix.length>60?`<p class="stat">+${ix.length-60} more</p>`:''}</div>`).join('');
  document.querySelectorAll('.th div').forEach(d=>d.onclick=()=>openPop(+d.dataset.i));
  const k=items.filter(i=>!i.skip&&i.group!=='Needs a look').length;$('#mv').classList.toggle('hide',!k);$('#mvt').textContent=`${k} files ready. Nothing has moved yet.`}
-let cur=0;function openPop(i){cur=i;const it=items[i];$('#pimg').src=it.url||'';$('#psel').innerHTML=names().map(n=>`<option ${n===it.group?'selected':''}>${esc(n)}</option>`).join('');$('#pop').classList.add('on')}
+let cur=0;function openPop(i){cur=i;const it=items[i];$('#pimg').style.display=it.url?'':'none';$('#pimg').src=it.url||'';$('#ptxt').style.display=it.doc?'block':'none';$('#ptxt').textContent=it.doc?(it.name+'\n\n'+(it.snip||'No readable text in this file. It was grouped by its name.')):'';$('#psel').innerHTML=names().map(n=>`<option ${n===it.group?'selected':''}>${esc(n)}</option>`).join('');$('#pop').classList.add('on')}
 $('#psel').onchange=()=>{items[cur].group=$('#psel').value;render()};$('#pskip').onclick=()=>{items[cur].skip=true;$('#pop').classList.remove('on');render()};$('#pclose').onclick=()=>$('#pop').classList.remove('on');$('#pop').onclick=e=>{if(e.target.id==='pop')$('#pop').classList.remove('on')};
 $('#reset').onclick=()=>{items=[];render();$('#groups').innerHTML='';prog(0,'Ready')};
 const safe=g=>g.replace(/[\/\\:*?"<>|]/g,'-').replace(/^\.+/,'_').trim()||'Group';
