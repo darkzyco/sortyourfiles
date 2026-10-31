@@ -26,7 +26,7 @@ input[type=text],select{font:inherit;color:var(--tx);background:var(--g2);border
 .th{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
 .th div{aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--g2);position:relative;cursor:pointer;border:1px solid var(--st)}.th img{width:100%;height:100%;object-fit:cover;display:block}
 .th div.v::after{content:"\25B6";position:absolute;right:4px;bottom:3px;font-size:9px;color:#fff;text-shadow:0 1px 3px #000}
-.th div.off{opacity:.25}
+.th div.off{opacity:.25}.th div.sel{outline:3px solid var(--tx);outline-offset:1px}.grp.over{outline:2px dashed var(--tx2)}.grp .ctl{display:flex;gap:6px;margin:-4px 0 10px;flex-wrap:wrap}.grp .ctl select{font-size:12px;padding:4px 8px;max-width:190px}.grp .ctl button{font:inherit;font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--st);background:var(--g2);color:var(--tx);cursor:pointer}#selbar{position:sticky;top:10px;z-index:15;margin:0 0 12px;padding:10px 14px;border-radius:99px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}.tip{color:var(--tx2);font-size:12.5px;text-align:center;margin:0 0 10px}
 .note{padding:12px 16px;border-radius:16px;background:var(--g2);border:1px solid var(--st);color:var(--tx2);margin-bottom:14px}
 .sticky{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);padding:12px 14px 12px 20px;display:flex;gap:14px;align-items:center;border-radius:99px;z-index:9}
 #pop{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.55);z-index:20}#pop.on{display:grid}#pop .box{padding:16px;max-width:92vw}#pop img{max-width:80vw;max-height:70vh;border-radius:14px;display:block}#pop select{margin-top:10px}
@@ -59,7 +59,7 @@ details.step>summary{cursor:pointer;list-style:none;padding:2px 0}details.step>s
 <details class="glass faq"><summary>Are my files uploaded?</summary><p>No. The AI runs inside your browser on your own computer. Only a one-time download of the AI model, about 150 MB for photos and 25 MB more for documents, happens the first time.</p></details>
 <details class="glass faq"><summary>Which browser do I need?</summary><p>Chrome on a computer (Mac, Windows or Linux). It needs Chrome's folder access, which phones and Safari don't have yet.</p></details>
 <details class="glass faq"><summary>Can it delete my files?</summary><p>No. It only moves files into a Sorted folder inside the folder you chose, and the Undo button puts them back.</p></details>
-<details class="glass faq"><summary>Can it sort documents like PDFs and Word files?</summary><p>Yes. It reads the text inside PDFs, Word, PowerPoint, Excel, text and web files on your computer and groups them by meaning, for example invoices, resumes or study notes. Scanned PDFs that are only pictures have no text to read, so they are grouped by file name or left in "Needs a look". Old formats such as .doc and .xls are grouped by file name.</p></details>
+<details class="glass faq"><summary>Can it sort documents like PDFs and Word files?</summary><p>Yes. It reads the text inside PDFs, Word, PowerPoint, Excel, text and web files on your computer and groups them by meaning, for example invoices, resumes or study notes. Documents it can't read or isn't sure about are moved into a "Needs a look" folder so you can go through them yourself. (Photos and videos it isn't sure about are left where they are.) Old formats such as .doc and .xls are grouped by file name.</p></details>
 <details class="glass faq"><summary>Does it work on videos?</summary><p>Yes. It looks at one frame of each video to decide where it belongs.</p></details></section>
 <p class="stat" style="text-align:center;margin:28px 0 8px">Free to use, no sign-in. If it saved you time, <a href="https://buymeacoffee.com/rohithkrishnanpj" target="_blank" rel="noopener" style="color:inherit;font-weight:600">buy me a coffee ☕</a></p>
 
@@ -68,6 +68,8 @@ details.step>summary{cursor:pointer;list-style:none;padding:2px 0}details.step>s
 
 
 <div class="note hide" id="done"></div>
+<p class="tip hide" id="tip">Tip: use "Move all to…" on a group, drag files between groups, or Cmd/Ctrl-click files to pick several and move them together.</p>
+<div class="glass hide" id="selbar"><b id="selt">0 selected</b><select id="selto"></select><button class="btn" id="selgo">Move selected</button><button class="btn" id="selclr">Clear</button></div>
 <div class="groups" id="groups"></div>
 <p class="stat" style="text-align:center;margin-top:30px">Your files never leave your computer. We only count anonymous visits.</p></div>
 <div class="sticky glass hide" id="mv"><span id="mvt"></span><button class="btn pri" id="go">Move files into folders</button><button class="btn" id="reset">Start over</button></div>
@@ -85,7 +87,7 @@ const SKIP=/^(\.|Library$|node_modules$|Sorted$)|\.(app|framework|bundle|photosl
 const DOCDEF=[["Invoices & bills","an invoice, bill, receipt or payment statement with amounts"],["Resumes & CVs","a resume or CV with work experience, education and skills"],["Contracts & legal","a contract, agreement, terms or legal document"],["Study notes & books","study notes, a textbook chapter, lecture or course material"],["Reports & proposals","a business report, proposal, plan or presentation"],["Spreadsheets & data","a spreadsheet or table of numbers and data"],["Forms & applications","a form, application, certificate or ID document"],["Web pages & code","a web page, source code or technical documentation"]];
 let dcats=JSON.parse(localStorage.getItem('ls_dcats')||'null')||DOCDEF.map(c=>({n:c[0],d:c[1]}));
 const IMG=/\.(jpe?g|png|webp|gif|heic|bmp)$/i,VID=/\.(mov|mp4|m4v|webm)$/i;
-let root=null,items=[],cls=null,busy=false,mode='ai';
+let gkeys=[],sel=new Set(),root=null,items=[],cls=null,busy=false,mode='ai';
 const DOC=/\.(pdf|docx?|txt|rtf|xlsx?|csv|tsv|pptx?|key|pages|numbers|md|html?|odt|ods|odp|json|xml|log)$/i,ARC=/\.(zip|rar|7z|tar|gz|dmg|pkg)$/i;
 const kindOf=n=>IMG.test(n)?'Photos':VID.test(n)?'Videos':DOC.test(n)?'Documents':ARC.test(n)?'Archives':'Other';
 const NOTE={ai:'The AI looks at each photo and video, and reads each document, and groups it by what it shows or says.',date:'Files go into one folder per month, with Photos, Videos, Documents and Other inside. The date is when the file was last changed, because browsers can\'t read the exact created date.'};
@@ -135,7 +137,7 @@ async function thumb(it){const f=await it.h.getFile();
 $('#pick').onclick=async()=>{if(busy)return;const valid=cats.filter(c=>c.n.trim()&&c.d.trim());if(mode==='ai'&&!valid.length)return alert('Add at least one group with a name and a description.');
  if(!window.showDirectoryPicker)return alert('Please open this page in Chrome.');
  try{root=await showDirectoryPicker({mode:'readwrite'})}catch(e){return}
- window.__hit&&window.__hit('scan');busy=true;$('#pick').disabled=true;$('#groups').innerHTML='';$('#done').classList.add('hide');items=[];
+ window.__hit&&window.__hit('scan');busy=true;$('#pick').disabled=true;$('#groups').innerHTML='';$('#done').classList.add('hide');items=[];sel.clear();
  try{let c=null,dl=null;const labels=valid.map(v=>v.d.trim()),thr=+$('#thr').value,dthr={0.28:.17,0.4:.24,0.55:.32}[thr]||.24,dvalid=dcats.filter(v=>v.n.trim()&&v.d.trim()),wantDocs=mode==='ai'&&$('#docs').checked&&dvalid.length>0;prog(0,'Counting files…');
   const list=[];for await(const it of walk(root,$('#sub').checked,mode==='date',wantDocs))list.push(it);
   if(!list.length){prog(0,mode==='date'?'No files found in that folder.':'No photos, videos or documents found at the top level of that folder.');busy=false;$('#pick').disabled=false;return}
@@ -152,23 +154,31 @@ $('#pick').onclick=async()=>{if(busy)return;const valid=cats.filter(c=>c.n.trim(
  busy=false;$('#pick').disabled=false};
 function names(){return[...new Set([...cats.filter(c=>c.n.trim()).map(c=>c.n.trim()),...dcats.filter(c=>c.n.trim()).map(c=>c.n.trim())]),'Needs a look']}
 function render(){const g={};items.forEach((it,i)=>{if(it.skip)return;(g[it.group]=g[it.group]||[]).push(i)});
- $('#groups').innerHTML=Object.entries(g).sort((a,b)=>mode==='date'?(a[0]<b[0]?1:-1):b[1].length-a[1].length).map(([n,ix])=>`<div class="grp glass"><h3>${esc(n)}<span>${ix.length}</span></h3>${mode==='date'?`<div class="kinds">${Object.entries(ix.reduce((o,i)=>(o[items[i].sub]=(o[items[i].sub]||0)+1,o),{})).map(([k,v])=>k+' '+v).join(' · ')}</div>`:''}<div class="th">${ix.slice(0,60).map(i=>`<div data-i="${i}" class="${items[i].video?'v':''}" title="${esc(items[i].name)}">${items[i].url?`<img src="${items[i].url}">`:`<span class="ext">${esc((items[i].name.split('.').pop()||'').slice(0,4).toUpperCase())}</span>`}</div>`).join('')}</div>${ix.length>60?`<p class="stat">+${ix.length-60} more</p>`:''}</div>`).join('');
- document.querySelectorAll('.th div').forEach(d=>d.onclick=()=>openPop(+d.dataset.i));
- const k=items.filter(i=>!i.skip&&i.group!=='Needs a look').length;$('#mv').classList.toggle('hide',!k);$('#mvt').textContent=`${k} files ready. Nothing has moved yet.`}
+ const ents=Object.entries(g).sort((a,b)=>mode==='date'?(a[0]<b[0]?1:-1):b[1].length-a[1].length);gkeys=ents.map(e=>e[0]);
+ $('#groups').innerHTML=ents.map(([n,ix],gi)=>`<div class="grp glass" data-gi="${gi}"><h3>${esc(n)}<span>${ix.length}</span></h3>${mode==='date'?`<div class="kinds">${Object.entries(ix.reduce((o,i)=>(o[items[i].sub]=(o[items[i].sub]||0)+1,o),{})).map(([k,v])=>k+' '+v).join(' · ')}</div>`:`<div class="ctl"><select data-mall="${gi}"><option value="">Move all to…</option>${names().filter(x=>x!==n&&x!=='Needs a look').map(x=>`<option>${esc(x)}</option>`).join('')}${n!=='Needs a look'?'<option value="Needs a look">Needs a look</option>':''}</select><button data-sall="${gi}">Select all</button></div>`}<div class="th">${ix.slice(0,60).map(i=>`<div data-i="${i}" draggable="true" class="${items[i].video?'v':''} ${sel.has(i)?'sel':''}" title="${esc(items[i].name)}">${items[i].url?`<img src="${items[i].url}" draggable="false">`:`<span class="ext">${esc((items[i].name.split('.').pop()||'').slice(0,4).toUpperCase())}</span>`}</div>`).join('')}</div>${ix.length>60?`<p class="stat">+${ix.length-60} more</p>`:''}</div>`).join('');
+ $('#tip').classList.toggle('hide',mode!=='ai'||!items.length);
+ document.querySelectorAll('[data-mall]').forEach(e=>e.onchange=()=>{if(!e.value)return;g[gkeys[+e.dataset.mall]].forEach(i=>items[i].group=e.value);render()});
+ document.querySelectorAll('[data-sall]').forEach(b=>b.onclick=()=>{g[gkeys[+b.dataset.sall]].forEach(i=>sel.add(i));render()});
+ document.querySelectorAll('.grp[data-gi]').forEach(c=>{c.ondragover=e=>{e.preventDefault();c.classList.add('over')};c.ondragleave=()=>c.classList.remove('over');c.ondrop=e=>{e.preventDefault();c.classList.remove('over');const d=+e.dataTransfer.getData('text/plain');if(isNaN(d))return;const to=gkeys[+c.dataset.gi],mv=sel.has(d)?[...sel]:[d];mv.forEach(i=>{if(items[i])items[i].group=to});sel.clear();render()}});
+ document.querySelectorAll('.th div').forEach(d=>{d.ondragstart=e=>e.dataTransfer.setData('text/plain',d.dataset.i)});
+ const sn=[...sel].filter(i=>items[i]&&!items[i].skip);$('#selbar').classList.toggle('hide',!sn.length);$('#selt').textContent=sn.length+' selected';$('#selto').innerHTML=names().map(x=>`<option>${esc(x)}</option>`).join('');
+ document.querySelectorAll('.th div').forEach(d=>d.onclick=e=>{const i=+d.dataset.i;if(e.metaKey||e.ctrlKey||e.shiftKey){sel.has(i)?sel.delete(i):sel.add(i);render()}else openPop(i)});
+ const k=items.filter(i=>!i.skip&&(i.group!=='Needs a look'||i.doc)).length;$('#mv').classList.toggle('hide',!k);$('#mvt').textContent=`${k} files ready. Nothing has moved yet.`}
+$('#selgo').onclick=()=>{const to=$('#selto').value;[...sel].forEach(i=>{if(items[i])items[i].group=to});sel.clear();render()};$('#selclr').onclick=()=>{sel.clear();render()};
 let cur=0;function openPop(i){cur=i;const it=items[i];$('#pimg').style.display=it.url?'':'none';$('#pimg').src=it.url||'';$('#ptxt').style.display=it.doc?'block':'none';$('#ptxt').textContent=it.doc?(it.name+'\n\n'+(it.snip||'No readable text in this file. It was grouped by its name.')):'';$('#psel').innerHTML=names().map(n=>`<option ${n===it.group?'selected':''}>${esc(n)}</option>`).join('');$('#pop').classList.add('on')}
 $('#psel').onchange=()=>{items[cur].group=$('#psel').value;render()};$('#pskip').onclick=()=>{items[cur].skip=true;$('#pop').classList.remove('on');render()};$('#pclose').onclick=()=>$('#pop').classList.remove('on');$('#pop').onclick=e=>{if(e.target.id==='pop')$('#pop').classList.remove('on')};
-$('#reset').onclick=()=>{items=[];render();$('#groups').innerHTML='';prog(0,'Ready')};
+$('#reset').onclick=()=>{items=[];sel.clear();render();$('#groups').innerHTML='';prog(0,'Ready')};
 const safe=g=>g.replace(/[\/\\:*?"<>|]/g,'-').replace(/^\.+/,'_').trim()||'Group';
 async function sub(d,path){let h=d;for(const p of path.split('/').filter(Boolean))h=await h.getDirectoryHandle(p,{create:true});return h}
 async function mvFile(it,toDir,name){try{await it.h.move(toDir,name);return true}catch(e){}
  const f=await it.h.getFile(),nh=await toDir.getFileHandle(name,{create:true}),w=await nh.createWritable();await w.write(f);await w.close();await it.dir.removeEntry(it.name);return true}
-$('#go').onclick=async()=>{const todo=items.filter(i=>!i.skip&&i.group!=='Needs a look');if(!todo.length)return;busy=true;$('#go').disabled=true;
+$('#go').onclick=async()=>{const todo=items.filter(i=>!i.skip&&(i.group!=='Needs a look'||i.doc));if(!todo.length)return;busy=true;$('#go').disabled=true;
  const log=[];let done=0,fail=0;const sorted=await root.getDirectoryHandle('Sorted',{create:true});
  for(const it of todo){try{const gp=safe(it.group)+(it.sub?'/'+safe(it.sub):'');const dir=await sub(sorted,gp);let name=it.name;try{await dir.getFileHandle(name);name=Date.now()+'_'+name}catch(e){}
    await mvFile(it,dir,name);log.push({from:it.rel,name:it.name,group:gp,to:name});done++}catch(e){fail++}
   $('#ps').textContent=`Moving ${done+fail} of ${todo.length}…`}
  const lh=await sorted.getFileHandle('.file-sorter-log.json',{create:true}),w=await lh.createWritable();await w.write(JSON.stringify({when:new Date().toISOString(),log}));await w.close();
- window.__hit&&window.__hit('sorted',done);$('#done').textContent=`Moved ${done} files into "Sorted" inside the folder you chose.`+(fail?` ${fail} could not be moved.`:'')+' You can undo it.';$('#done').classList.remove('hide');$('#mv').classList.add('hide');$('#groups').innerHTML='';items=[];busy=false;$('#go').disabled=false};
+ window.__hit&&window.__hit('sorted',done);$('#done').textContent=`Moved ${done} files into "Sorted" inside the folder you chose.`+(fail?` ${fail} could not be moved.`:'')+' You can undo it.';$('#done').classList.remove('hide');$('#mv').classList.add('hide');$('#groups').innerHTML='';items=[];sel.clear();busy=false;$('#go').disabled=false};
 $('#undo').onclick=async()=>{try{const r=await showDirectoryPicker({mode:'readwrite'}),s=await r.getDirectoryHandle('Sorted'),lf=await(await s.getFileHandle('.file-sorter-log.json')).getFile(),{log}=JSON.parse(await lf.text());let n=0;
   for(const e of log){try{const gd=await sub(s,e.group),fh=await gd.getFileHandle(e.to),back=await sub(r,e.from);const f=await fh.getFile();let nm=e.name;try{await back.getFileHandle(nm);nm='restored_'+Date.now()+'_'+nm}catch(_){ }const nh=await back.getFileHandle(nm,{create:true}),w=await nh.createWritable();await w.write(f);await w.close();await gd.removeEntry(e.to);n++}catch(x){}}
   await s.removeEntry('.file-sorter-log.json');$('#done').textContent=`Put ${n} files back where they were.`;$('#done').classList.remove('hide')}catch(e){alert('No earlier move found in that folder.')}};
